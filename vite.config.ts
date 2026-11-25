@@ -2,6 +2,7 @@
 import { defineConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { handleGenerateLessonGraph } from './server/generateLessonGraph';
+import { handleGenerateActivities, handleGenerateExplanation } from './server/aiAssistant';
 import fs from 'fs';
 import path from 'path';
 
@@ -26,25 +27,25 @@ function serverlessApiPlugin(): Plugin {
   // Support either SERVER_GEMINI_API_KEY or GEMINI_API_KEY on the server
   const apiKey = serverEnv.SERVER_GEMINI_API_KEY || serverEnv.GEMINI_API_KEY || process.env.SERVER_GEMINI_API_KEY || process.env.GEMINI_API_KEY || '';
 
+  const handleRoutes = (req: any, res: any, next: any) => {
+    if (req.url === '/api/generate-lesson-graph') {
+      handleGenerateLessonGraph(req, res, apiKey);
+    } else if (req.url === '/api/generate-activities') {
+      handleGenerateActivities(req, res, apiKey);
+    } else if (req.url === '/api/generate-simple-explanation') {
+      handleGenerateExplanation(req, res, apiKey);
+    } else {
+      next();
+    }
+  };
+
   return {
     name: 'serverless-api-plugin',
     configureServer(server) {
-      server.middlewares.use((req, res, next) => {
-        if (req.url === '/api/generate-lesson-graph') {
-          handleGenerateLessonGraph(req, res, apiKey);
-        } else {
-          next();
-        }
-      });
+      server.middlewares.use(handleRoutes);
     },
     configurePreviewServer(server) {
-      server.middlewares.use((req, res, next) => {
-        if (req.url === '/api/generate-lesson-graph') {
-          handleGenerateLessonGraph(req, res, apiKey);
-        } else {
-          next();
-        }
-      });
+      server.middlewares.use(handleRoutes);
     }
   };
 }

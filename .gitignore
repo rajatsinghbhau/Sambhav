@@ -31,6 +31,7 @@ Thumbs.db
 !.env.example
 *.env
 *.env.*
+.envrc
 
 # Private Keys, Certificates & Tokens
 *.pem
@@ -44,12 +45,21 @@ id_rsa*
 id_ed25519*
 *.token
 token.json
+*private_key*
 
 # Service Account & Cloud Credentials
-*secret*.json
-*credential*.json
+*secret*
+*credential*
+*.secret
+*.secrets
+.secrets
+.secrets.*
+*.credentials
+.credentials
 service-account*.json
 client_secret*.json
+api_key*
+*apikey*
 
 # Local agent caches
 .gemini/

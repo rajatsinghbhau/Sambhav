@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ConceptGraph } from '../../types/conceptGraph';
 import { SIMPLIFIED_EXPLANATIONS } from '../../data/stage4Data';
-import { Sparkles, BookOpen, Volume2, HelpCircle, X } from 'lucide-react';
+import { generateAiExplanation } from '../../services/aiAssistantService';
+import { Sparkles, Volume2, HelpCircle, X, Loader2, Hand, Eye, Lightbulb } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects';
 
 interface SimplifiedExplanationModalProps {
@@ -20,13 +21,15 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
   onOpenAskDoubt
 }) => {
   const [selectedConceptId, setSelectedConceptId] = useState<string>(initialConceptId);
-  const [activeView, setActiveView] = useState<'simple' | 'example' | 'visual'>('simple');
+  const [activeTier, setActiveTier] = useState<'sensory' | 'visual' | 'science'>('sensory');
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [isGeneratingAi, setIsGeneratingAi] = useState<boolean>(false);
+  const [aiExplanationsMap, setAiExplanationsMap] = useState<Record<string, { sensory: string; visual: string; science: string; realLifeExample: string }>>({});
 
   if (!isOpen) return null;
 
   const selectedNode = graph.nodes.find(n => n.id === selectedConceptId) || graph.nodes[0];
-  const explanation = SIMPLIFIED_EXPLANATIONS[selectedConceptId] || {
+  const staticExplanation = SIMPLIFIED_EXPLANATIONS[selectedConceptId] || {
     conceptId: selectedNode.id,
     conceptSymbol: selectedNode.symbol,
     conceptLabel: selectedNode.label,
@@ -35,14 +38,27 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
     visualPrompt: `${selectedNode.label} visual illustration`
   };
 
+  const aiData = aiExplanationsMap[selectedConceptId];
+
+  // Multi-tier descriptions:
+  const sensoryText = aiData?.sensory || `Touch a cold soda can: you feel tiny water drops forming on the outside from the invisible air. That cold feeling is ${selectedNode.label}!`;
+  const visualText = aiData?.visual || `Imagine tiny invisible water vapor particles floating like floating balloons. When they touch a cool mirror, they hold hands and turn back into little water drops.`;
+  const scienceText = aiData?.science || `${selectedNode.explanation} Water changes state as its temperature cools down.`;
+  const homeExampleText = aiData?.realLifeExample || staticExplanation.realLifeExample;
+
+  // Speak active explanation tier
   const handleSpeak = () => {
     sounds.playPop();
     if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis) {
       try {
         window.speechSynthesis.cancel();
-        const text = `${explanation.conceptLabel}. ${explanation.simpleExplanation}. For example: ${explanation.realLifeExample}`;
-        const u = new SpeechSynthesisUtterance(text);
-        u.rate = 0.85;
+        let textToSpeak = '';
+        if (activeTier === 'sensory') textToSpeak = `${selectedNode.label}. Sensory feel: ${sensoryText}`;
+        else if (activeTier === 'visual') textToSpeak = `${selectedNode.label}. Picture story: ${visualText}`;
+        else textToSpeak = `${selectedNode.label}. Science fact: ${scienceText}`;
+
+        const u = new SpeechSynthesisUtterance(textToSpeak);
+        u.rate = 0.88;
         setIsSpeaking(true);
         u.onend = () => setIsSpeaking(false);
         u.onerror = () => setIsSpeaking(false);
@@ -53,13 +69,35 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
     }
   };
 
+  // Generate fresh AI analogies with Gemini 2.5 Flash
+  const handleGenerateAiMetaphor = async () => {
+    sounds.playPop();
+    setIsGeneratingAi(true);
+
+    const result = await generateAiExplanation(selectedNode.label, selectedNode.explanation);
+    setIsGeneratingAi(false);
+
+    if (result && result.sensory && result.visual && result.science) {
+      sounds.playSuccessChime();
+      setAiExplanationsMap(prev => ({
+        ...prev,
+        [selectedConceptId]: {
+          sensory: result.sensory,
+          visual: result.visual,
+          science: result.science,
+          realLifeExample: result.realLifeExample
+        }
+      }));
+    }
+  };
+
   return (
     <div
       role="dialog"
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in"
     >
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full border-2 border-slate-200 p-6 sm:p-8 space-y-5 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full border-2 border-slate-200 p-6 sm:p-8 space-y-5 animate-in zoom-in-95 max-h-[92vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2.5">
@@ -68,10 +106,10 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
             </div>
             <div>
               <h3 className="text-xl font-black text-slate-900 tracking-tight">
-                Explain Simply
+                Explain Simply (Multi-Tier)
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Child-friendly explanation and real-life concrete examples
+                Sensory, visual, and gentle science analogies for every child
               </p>
             </div>
           </div>
@@ -107,93 +145,140 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
           ))}
         </div>
 
-        {/* Big Concept Card */}
-        <div className="p-6 rounded-3xl bg-gradient-to-br from-sky-50 via-blue-50/50 to-indigo-50 border-2 border-sky-200 text-center space-y-3">
-          <span className="text-6xl mx-auto block animate-float filter drop-shadow">
-            {explanation.conceptSymbol}
-          </span>
-          <h4 className="text-2xl font-black text-slate-900">
-            {explanation.conceptLabel}
-          </h4>
-
-          {/* Simple Explanation View */}
-          {activeView === 'simple' && (
-            <div className="p-4 bg-white/90 rounded-2xl border border-sky-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-black uppercase text-sky-700 tracking-wider block">
-                Simple Explanation
-              </span>
-              <p className="text-base font-bold text-slate-800 leading-relaxed">
-                “{explanation.simpleExplanation}”
-              </p>
-            </div>
-          )}
-
-          {/* Real-Life Example View */}
-          {activeView === 'example' && (
-            <div className="p-4 bg-white/90 rounded-2xl border border-sky-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-black uppercase text-indigo-700 tracking-wider block">
-                Real-Life Example
-              </span>
-              <p className="text-base font-bold text-slate-800 leading-relaxed">
-                “{explanation.realLifeExample}”
-              </p>
-            </div>
-          )}
-
-          {/* Visual Diagram View */}
-          {activeView === 'visual' && (
-            <div className="p-4 bg-white/90 rounded-2xl border border-sky-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-black uppercase text-blue-700 tracking-wider block">
-                Visual Scene
-              </span>
-              <p className="text-sm font-semibold text-slate-700 leading-relaxed">
-                {explanation.visualPrompt}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Action Buttons: See Visual, See Example, Ask a Doubt, Explain Again */}
-        <div className="grid grid-cols-2 gap-2.5 pt-1">
+        {/* 3 Cognitive Tiered Selectors */}
+        <div className="grid grid-cols-3 gap-2 p-1.5 bg-slate-100 rounded-2xl">
           <button
             onClick={() => {
               sounds.playPop();
-              setActiveView('simple');
+              setActiveTier('sensory');
             }}
             type="button"
-            className={`min-h-[48px] px-3 py-2 rounded-2xl border text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer ${
-              activeView === 'simple'
-                ? 'bg-sky-600 text-white border-sky-600 shadow-xs'
-                : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+            className={`min-h-[44px] px-2 py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              activeTier === 'sensory'
+                ? 'bg-white text-emerald-800 shadow-xs ring-2 ring-emerald-300'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Simple Words</span>
+            <Hand className="w-3.5 h-3.5 text-emerald-600" />
+            <span>1. Sensory</span>
           </button>
 
           <button
             onClick={() => {
               sounds.playPop();
-              setActiveView('example');
+              setActiveTier('visual');
             }}
             type="button"
-            className={`min-h-[48px] px-3 py-2 rounded-2xl border text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer ${
-              activeView === 'example'
-                ? 'bg-sky-600 text-white border-sky-600 shadow-xs'
-                : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+            className={`min-h-[44px] px-2 py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              activeTier === 'visual'
+                ? 'bg-white text-blue-800 shadow-xs ring-2 ring-blue-300'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>See Example</span>
+            <Eye className="w-3.5 h-3.5 text-blue-600" />
+            <span>2. Story</span>
+          </button>
+
+          <button
+            onClick={() => {
+              sounds.playPop();
+              setActiveTier('science');
+            }}
+            type="button"
+            className={`min-h-[44px] px-2 py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              activeTier === 'science'
+                ? 'bg-white text-indigo-800 shadow-xs ring-2 ring-indigo-300'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Lightbulb className="w-3.5 h-3.5 text-indigo-600" />
+            <span>3. Science</span>
+          </button>
+        </div>
+
+        {/* Big Concept Card Displaying Active Tier */}
+        <div className="p-6 rounded-3xl bg-gradient-to-br from-sky-50 via-blue-50/50 to-indigo-50 border-2 border-sky-200 text-center space-y-3">
+          <span className="text-6xl mx-auto block animate-float filter drop-shadow">
+            {selectedNode.symbol}
+          </span>
+          <h4 className="text-2xl font-black text-slate-900">
+            {selectedNode.label}
+          </h4>
+
+          {/* Tier 1: Sensory */}
+          {activeTier === 'sensory' && (
+            <div className="p-4 bg-white/95 rounded-2xl border border-emerald-200 shadow-2xs space-y-1.5 text-left animate-in fade-in">
+              <span className="text-[10px] font-black uppercase text-emerald-700 tracking-wider flex items-center gap-1">
+                <Hand className="w-3 h-3" />
+                <span>Tier 1: Sensory Feel & Everyday Experience</span>
+              </span>
+              <p className="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
+                “{sensoryText}”
+              </p>
+            </div>
+          )}
+
+          {/* Tier 2: Visual Metaphor Story */}
+          {activeTier === 'visual' && (
+            <div className="p-4 bg-white/95 rounded-2xl border border-blue-200 shadow-2xs space-y-1.5 text-left animate-in fade-in">
+              <span className="text-[10px] font-black uppercase text-blue-700 tracking-wider flex items-center gap-1">
+                <Eye className="w-3 h-3" />
+                <span>Tier 2: Fun Visual Picture Story</span>
+              </span>
+              <p className="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
+                “{visualText}”
+              </p>
+            </div>
+          )}
+
+          {/* Tier 3: Gentle Science Fact */}
+          {activeTier === 'science' && (
+            <div className="p-4 bg-white/95 rounded-2xl border border-indigo-200 shadow-2xs space-y-1.5 text-left animate-in fade-in">
+              <span className="text-[10px] font-black uppercase text-indigo-700 tracking-wider flex items-center gap-1">
+                <Lightbulb className="w-3 h-3" />
+                <span>Tier 3: Simple Science Fact</span>
+              </span>
+              <p className="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
+                “{scienceText}”
+              </p>
+            </div>
+          )}
+
+          {/* Familiar Home Example */}
+          <div className="p-3 bg-white/70 rounded-xl border border-slate-200 text-left text-xs text-slate-600">
+            <span className="font-extrabold text-slate-800 block mb-0.5">🏠 Real-Life Home Example:</span>
+            <span>{homeExampleText}</span>
+          </div>
+        </div>
+
+        {/* Actions: AI Generate, Speak Audio, Ask Doubt */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+          <button
+            onClick={handleGenerateAiMetaphor}
+            disabled={isGeneratingAi}
+            type="button"
+            className="min-h-[48px] px-3 py-2 rounded-2xl bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-300 text-indigo-900 text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+          >
+            {isGeneratingAi ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" />
+                <span>Thinking...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5 text-indigo-600 animate-pulse" />
+                <span>AI New Analogy</span>
+              </>
+            )}
           </button>
 
           <button
             onClick={handleSpeak}
             type="button"
-            className="min-h-[48px] px-3 py-2 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer"
+            className="min-h-[48px] px-3 py-2 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
           >
             <Volume2 className={`w-4 h-4 text-emerald-700 ${isSpeaking ? 'animate-bounce' : ''}`} />
-            <span>Explain Again (Audio)</span>
+            <span>Read Aloud</span>
           </button>
 
           <button
@@ -203,9 +288,9 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
               if (onOpenAskDoubt) onOpenAskDoubt();
             }}
             type="button"
-            className="min-h-[48px] px-3 py-2 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-indigo-900 text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer"
+            className="min-h-[48px] px-3 py-2 rounded-2xl bg-sky-50 hover:bg-sky-100 border border-sky-300 text-sky-900 text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
           >
-            <HelpCircle className="w-4 h-4 text-indigo-700" />
+            <HelpCircle className="w-4 h-4 text-sky-700" />
             <span>Ask a Doubt</span>
           </button>
         </div>
