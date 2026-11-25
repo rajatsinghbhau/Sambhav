@@ -1,5 +1,6 @@
 import { ConceptGraph, GraphEvidenceEvaluation } from '../types/conceptGraph';
 import { FALLBACK_GRAPH } from '../data/canonicalGraph';
+import { TeachingPlan, Doubt, RevisionItem, ExamRevisionPlan, StudentActivityLog } from '../types/stage4';
 
 const STORAGE_KEYS = {
   GRAPH: 'sambhav_approved_graph',
@@ -8,6 +9,11 @@ const STORAGE_KEYS = {
   BEFORE_EVIDENCE: 'sambhav_before_evidence',
   AFTER_EVIDENCE: 'sambhav_after_evidence',
   LANGUAGE: 'sambhav_language_mode',
+  TEACHING_PLAN: 'sambhav_teaching_plan',
+  STUDENT_DOUBTS: 'sambhav_student_doubts',
+  REVISION_QUEUE: 'sambhav_revision_queue',
+  EXAM_PLAN: 'sambhav_exam_plan',
+  STUDENT_ACTIVITIES: 'sambhav_student_activities',
 };
 
 export interface OfflineCacheState {
@@ -130,6 +136,120 @@ export const offlineStorage = {
     return 'EN';
   },
 
+  // STAGE 4 PERSISTENCE HELPERS
+  saveTeachingPlan(plan: TeachingPlan) {
+    try {
+      safeSetItem(STORAGE_KEYS.TEACHING_PLAN, JSON.stringify(plan));
+    } catch (e) {
+      console.warn('Failed to save teaching plan offline:', e);
+    }
+  },
+
+  loadTeachingPlan(): TeachingPlan | null {
+    try {
+      const raw = safeGetItem(STORAGE_KEYS.TEACHING_PLAN);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return null;
+  },
+
+  saveDoubts(doubts: Doubt[]) {
+    try {
+      safeSetItem(STORAGE_KEYS.STUDENT_DOUBTS, JSON.stringify(doubts));
+    } catch (e) {
+      console.warn('Failed to save doubts offline:', e);
+    }
+  },
+
+  loadDoubts(): Doubt[] {
+    try {
+      const raw = safeGetItem(STORAGE_KEYS.STUDENT_DOUBTS);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return [
+      {
+        id: 'doubt-1',
+        studentId: 's-ananya',
+        studentName: 'Ananya',
+        conceptId: 'condensation',
+        conceptSymbol: '☁️',
+        conceptLabel: 'Condensation',
+        question: 'Why does water vapour become drops on the cold glass?',
+        status: 'pending',
+        createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString()
+      }
+    ];
+  },
+
+  saveRevisionQueue(items: RevisionItem[]) {
+    try {
+      safeSetItem(STORAGE_KEYS.REVISION_QUEUE, JSON.stringify(items));
+    } catch (e) {
+      console.warn('Failed to save revision queue offline:', e);
+    }
+  },
+
+  loadRevisionQueue(): RevisionItem[] | null {
+    try {
+      const raw = safeGetItem(STORAGE_KEYS.REVISION_QUEUE);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return null;
+  },
+
+  saveExamPlan(plan: ExamRevisionPlan) {
+    try {
+      safeSetItem(STORAGE_KEYS.EXAM_PLAN, JSON.stringify(plan));
+    } catch (e) {
+      console.warn('Failed to save exam plan offline:', e);
+    }
+  },
+
+  loadExamPlan(): ExamRevisionPlan | null {
+    try {
+      const raw = safeGetItem(STORAGE_KEYS.EXAM_PLAN);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return null;
+  },
+
+  saveStudentActivities(logs: StudentActivityLog[]) {
+    try {
+      safeSetItem(STORAGE_KEYS.STUDENT_ACTIVITIES, JSON.stringify(logs));
+    } catch (e) {
+      console.warn('Failed to save student activities offline:', e);
+    }
+  },
+
+  loadStudentActivities(): StudentActivityLog[] {
+    try {
+      const raw = safeGetItem(STORAGE_KEYS.STUDENT_ACTIVITIES);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return [
+      {
+        id: 'act-ananya',
+        studentId: 's-ananya',
+        studentName: 'Ananya',
+        lessonTitle: 'Water Cycle',
+        events: [
+          'Communication Board used',
+          'Confirm-before-speak used',
+          'Teach-Back attempt 1',
+          'Condensation → 🟡 Needs reinforcement',
+          'Teacher reinforcement: Cold Glass Observation',
+          'Teach-Back attempt 2',
+          'Condensation → 🟢 Demonstrated',
+          'Revision scheduled',
+          'Next concept: Rain'
+        ],
+        demonstratedConcepts: ['sun', 'heat', 'water', 'evaporation', 'vapour', 'condensation'],
+        reinforceConcepts: ['condensation'],
+        nextConcept: 'rain'
+      }
+    ];
+  },
+
   clear() {
     try {
       safeRemoveItem(STORAGE_KEYS.GRAPH);
@@ -138,6 +258,11 @@ export const offlineStorage = {
       safeRemoveItem(STORAGE_KEYS.BEFORE_EVIDENCE);
       safeRemoveItem(STORAGE_KEYS.AFTER_EVIDENCE);
       safeRemoveItem(STORAGE_KEYS.LANGUAGE);
+      safeRemoveItem(STORAGE_KEYS.TEACHING_PLAN);
+      safeRemoveItem(STORAGE_KEYS.STUDENT_DOUBTS);
+      safeRemoveItem(STORAGE_KEYS.REVISION_QUEUE);
+      safeRemoveItem(STORAGE_KEYS.EXAM_PLAN);
+      safeRemoveItem(STORAGE_KEYS.STUDENT_ACTIVITIES);
     } catch {}
   }
 };
