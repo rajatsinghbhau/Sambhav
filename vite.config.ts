@@ -51,6 +51,14 @@ function serverlessApiPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [react(), serverlessApiPlugin()],
+  server: {
+    host: true,
+    allowedHosts: ['sambhav.nivixsa.com', '.nivixsa.com'],
+  },
+  preview: {
+    host: true,
+    allowedHosts: ['sambhav.nivixsa.com', '.nivixsa.com'],
+  },
   test: {
     globals: true,
     environment: 'node',
