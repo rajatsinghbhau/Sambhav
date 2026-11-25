@@ -8,11 +8,13 @@ import { sounds } from '../../utils/soundEffects';
 
 interface PreClassTeachingSupportProps {
   graph: ConceptGraph;
+  language?: 'EN' | 'KN';
   onSelectActivityForPlan?: (activity: TeachingActivity) => void;
 }
 
 export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = ({
   graph,
+  language = 'EN',
   onSelectActivityForPlan
 }) => {
   const [selectedConceptId, setSelectedConceptId] = useState<string>('condensation');
@@ -102,20 +104,22 @@ export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = (
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold mb-1">
             <Lightbulb className="w-3.5 h-3.5" />
-            <span>Pre-Class Teaching Support</span>
+            <span>{language === 'KN' ? 'ತರಗತಿ ಪೂರ್ವ ಬೋಧನಾ ಬೆಂಬಲ' : 'Pre-Class Teaching Support'}</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            How can I teach this concept clearly?
+            {language === 'KN' ? 'ಈ ಪರಿಕಲ್ಪನೆಯನ್ನು ಸರಳವಾಗಿ ಬೋಧಿಸುವುದು ಹೇಗೆ?' : 'How can I teach this concept clearly?'}
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Curated & AI-assisted inclusive pedagogical suggestions available before class begins.
+            {language === 'KN'
+              ? 'ತರಗತಿ ಆರಂಭವಾಗುವ ಮುನ್ನ ಶಿಕ್ಷಕರಿಗೆ ಲಭ್ಯವಿರುವ ಪರಿಶೀಲಿತ ಮತ್ತು AI-ಸಹಾಯದ ಬೋಧನಾ ಸಲಹೆಗಳು.'
+              : 'Curated & AI-assisted inclusive pedagogical suggestions available before class begins.'}
           </p>
         </div>
 
         {/* Suggested approach. Teacher decides. Notice */}
         <div className="bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 self-start sm:self-center">
           <Info className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-          <span>Suggested approach. Teacher decides.</span>
+          <span>{language === 'KN' ? 'ಸೂಚಿಸಲಾದ ವಿಧಾನ. ಶಿಕ್ಷಕರೇ ನಿರ್ಧರಿಸುತ್ತಾರೆ.' : 'Suggested approach. Teacher decides.'}</span>
         </div>
       </div>
 
@@ -123,11 +127,12 @@ export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = (
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex-1 overflow-x-auto pb-1 scrollbar-none">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
-            Select Curriculum Concept:
+            {language === 'KN' ? 'ಪಠ್ಯಕ್ರಮ ಪರಿಕಲ್ಪನೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ:' : 'Select Curriculum Concept:'}
           </span>
           <div className="flex items-center gap-2 min-w-max">
             {graph.nodes.map(node => {
               const isSelected = node.id === selectedConceptId;
+              const nodeDisplay = language === 'KN' ? (node.kannadaLabel || node.label) : node.label;
               return (
                 <button
                   key={node.id}
@@ -144,7 +149,7 @@ export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = (
                   }`}
                 >
                   <span>{node.symbol}</span>
-                  <span>{node.label}</span>
+                  <span>{nodeDisplay}</span>
                 </button>
               );
             })}
@@ -161,13 +166,13 @@ export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = (
           >
             {isGeneratingAi ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
-                <span>Generating Activities...</span>
+                <Loader2 className="w-4 h-4 text-indigo-600 animate-spin" />
+                <span>{language === 'KN' ? 'ರಚಿಸಲಾಗುತ್ತಿದೆ...' : 'Generating...'}</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
-                <span>AI Suggest Fresh Activities</span>
+                <Sparkles className="w-4 h-4 text-indigo-600" />
+                <span>{language === 'KN' ? '✨ AI ಚಟುವಟಿಕೆಗಳನ್ನು ಸೂಚಿಸಿ' : '✨ Suggest AI Activities'}</span>
               </>
             )}
           </button>
@@ -187,11 +192,13 @@ export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-slate-900 font-extrabold text-sm sm:text-base">
             <span>{selectedNode.symbol}</span>
-            <span>{selectedNode.label}: Suggested ways to introduce it</span>
+            <span>
+              {language === 'KN' ? (selectedNode.kannadaLabel || selectedNode.label) : selectedNode.label}: {language === 'KN' ? 'ಬೋಧನೆಯ ಪರಿಚಿತ ಸಲಹೆಗಳು' : 'Suggested ways to introduce it'}
+            </span>
           </div>
           {aiActivitiesMap[selectedConceptId] && (
             <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
-              AI Generated Options
+              {language === 'KN' ? 'AI ರಚಿಸಿದ ಆಯ್ಕೆಗಳು' : 'AI Generated Options'}
             </span>
           )}
         </div>
@@ -251,7 +258,9 @@ export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = (
                   )}
 
                   <div className="p-3 bg-white/80 rounded-xl border border-slate-200/80 text-[11px] text-slate-600 space-y-0.5">
-                    <span className="font-extrabold text-indigo-950 block">💡 Inclusive Tip:</span>
+                    <span className="font-extrabold text-indigo-950 block">
+                      {language === 'KN' ? '💡 ಒಳಗೊಳ್ಳುವ ಸಲಹೆ:' : '💡 Inclusive Tip:'}
+                    </span>
                     <span>{act.inclusiveTip}</span>
                   </div>
                 </div>
@@ -270,12 +279,12 @@ export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = (
                     {isUsed ? (
                       <>
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
-                        <span>Added to Plan</span>
+                        <span>{language === 'KN' ? 'ಯೋಜನೆಗೆ ಸೇರಿಸಲಾಗಿದೆ' : 'Added to Plan'}</span>
                       </>
                     ) : (
                       <>
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span>Use this activity</span>
+                        <span>{language === 'KN' ? 'ಈ ಚಟುವಟಿಕೆ ಬಳಸಿ' : 'Use this activity'}</span>
                       </>
                     )}
                   </button>
@@ -287,7 +296,7 @@ export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = (
                       className="min-h-[44px] px-3 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
-                      <span>Edit</span>
+                      <span>{language === 'KN' ? 'ಸಂಪಾದಿಸಿ' : 'Edit'}</span>
                     </button>
                   )}
                 </div>

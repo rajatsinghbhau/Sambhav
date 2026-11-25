@@ -8,9 +8,10 @@ import { sounds } from '../../utils/soundEffects';
 interface TeachingPlannerProps {
   onPlanSaved?: (plan: TeachingPlan) => void;
   planTrigger?: number;
+  language?: 'EN' | 'KN';
 }
 
-export const TeachingPlanner: React.FC<TeachingPlannerProps> = ({ onPlanSaved, planTrigger }) => {
+export const TeachingPlanner: React.FC<TeachingPlannerProps> = ({ onPlanSaved, planTrigger, language = 'EN' }) => {
   const [plan, setPlan] = useState<TeachingPlan>(() => {
     return offlineStorage.loadTeachingPlan() || createDefaultTeachingPlan('Water Cycle', 'condensation');
   });
@@ -78,13 +79,15 @@ export const TeachingPlanner: React.FC<TeachingPlannerProps> = ({ onPlanSaved, p
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-1">
             <Calendar className="w-3.5 h-3.5" />
-            <span>45-Minute Lesson Architect</span>
+            <span>{language === 'KN' ? '45-ನಿಮಿಷದ ಪಾಠ ರಚನೆ' : '45-Minute Lesson Architect'}</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Today's Teaching Plan
+            {language === 'KN' ? 'ಇಂದಿನ ಬೋಧನಾ ಯೋಜನೆ' : "Today's Teaching Plan"}
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Structured 6-phase inclusive classroom timetable. Editable by teacher.
+            {language === 'KN'
+              ? '6-ಹಂತಗಳ ಒಳಗೊಳ್ಳುವ ತರಗತಿ ವೇಳಾಪಟ್ಟಿ. ಶಿಕ್ಷಕರು ಸಂಪಾದಿಸಬಹುದು.'
+              : 'Structured 6-phase inclusive classroom timetable. Editable by teacher.'}
           </p>
         </div>
 
@@ -92,7 +95,7 @@ export const TeachingPlanner: React.FC<TeachingPlannerProps> = ({ onPlanSaved, p
         <div className="flex flex-wrap items-center gap-2">
           <div className="bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
             <Info className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-            <span>Suggested plan. Teacher decides.</span>
+            <span>{language === 'KN' ? 'ಸೂಚಿಸಲಾದ ಯೋಜನೆ. ಶಿಕ್ಷಕರೇ ನಿರ್ಧರಿಸುತ್ತಾರೆ.' : 'Suggested plan. Teacher decides.'}</span>
           </div>
 
           <span className={`px-3 py-1.5 rounded-xl text-xs font-black border ${
@@ -100,7 +103,7 @@ export const TeachingPlanner: React.FC<TeachingPlannerProps> = ({ onPlanSaved, p
               ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
               : 'bg-indigo-50 text-indigo-900 border-indigo-200'
           }`}>
-            Total: {totalTime} min
+            {language === 'KN' ? `ಒಟ್ಟು: ${totalTime} ನಿಮಿಷ` : `Total: ${totalTime} min`}
           </span>
         </div>
       </div>
@@ -197,7 +200,7 @@ export const TeachingPlanner: React.FC<TeachingPlannerProps> = ({ onPlanSaved, p
             className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Edit3 className="w-3.5 h-3.5" />
-            <span>{isEditing ? 'Done Editing' : 'Edit Plan'}</span>
+            <span>{isEditing ? (language === 'KN' ? 'ಸಂಪಾದನೆ ಮುಗಿದಿದೆ' : 'Done Editing') : (language === 'KN' ? 'ಯೋಜನೆ ಸಂಪಾದಿಸಿ' : 'Edit Plan')}</span>
           </button>
 
           <button
@@ -206,7 +209,7 @@ export const TeachingPlanner: React.FC<TeachingPlannerProps> = ({ onPlanSaved, p
             className="min-h-[44px] px-3.5 py-2 rounded-xl text-slate-500 hover:text-slate-800 text-xs font-medium flex items-center gap-1 cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Default (45m)</span>
+            <span>{language === 'KN' ? 'ಮೂಲ ಸ್ಥಿತಿಗೆ ಮರುಹೊಂದಿಸಿ (45ನಿ)' : 'Reset Default (45m)'}</span>
           </button>
         </div>
 
@@ -214,7 +217,7 @@ export const TeachingPlanner: React.FC<TeachingPlannerProps> = ({ onPlanSaved, p
           {saveSuccess && (
             <span className="text-xs text-emerald-600 font-bold flex items-center gap-1 animate-in fade-in">
               <Check className="w-4 h-4" />
-              <span>Today's plan saved offline!</span>
+              <span>{language === 'KN' ? 'ಇಂದಿನ ಯೋಜನೆಯನ್ನು ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ!' : "Today's plan saved offline!"}</span>
             </span>
           )}
 
@@ -224,7 +227,7 @@ export const TeachingPlanner: React.FC<TeachingPlannerProps> = ({ onPlanSaved, p
             className="min-h-[44px] px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold text-xs shadow-md shadow-indigo-600/20 flex items-center gap-2 cursor-pointer btn-tactile"
           >
             <Save className="w-3.5 h-3.5" />
-            <span>Save Today's Plan</span>
+            <span>{language === 'KN' ? 'ಇಂದಿನ ಯೋಜನೆ ಉಳಿಸಿ' : "Save Today's Plan"}</span>
           </button>
         </div>
       </div>

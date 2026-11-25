@@ -10,10 +10,12 @@ import { sounds } from '../../utils/soundEffects';
 
 interface ExamRevisionPlannerProps {
   graph?: ConceptGraph;
+  language?: 'EN' | 'KN';
 }
 
 export const ExamRevisionPlanner: React.FC<ExamRevisionPlannerProps> = ({
-  graph = WATER_CYCLE_GRAPH
+  graph = WATER_CYCLE_GRAPH,
+  language = 'EN'
 }) => {
   const [examDate, setExamDate] = useState<string>('2026-12-15');
   const [plan, setPlan] = useState<ExamRevisionPlan>(() => {
@@ -119,13 +121,15 @@ export const ExamRevisionPlanner: React.FC<ExamRevisionPlannerProps> = ({
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold mb-1">
             <Target className="w-3.5 h-3.5" />
-            <span>Pre-Exam Strategic Roadmap</span>
+            <span>{language === 'KN' ? 'ಪರೀಕ್ಷಾ ಪೂರ್ವ ಕಾರ್ಯತಂತ್ರದ ಮಾರ್ಗಸೂಚಿ' : 'Pre-Exam Strategic Roadmap'}</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Prepare for Exam Planner
+            {language === 'KN' ? 'ಪರೀಕ್ಷಾ ಸಿದ್ಧತಾ ಯೋಜಕ' : 'Prepare for Exam Planner'}
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Deterministic 7-day revision schedule informed by lesson history and reinforcement records.
+            {language === 'KN'
+              ? 'ಪಾಠದ ಇತಿಹಾಸ ಮತ್ತು ಬಲವರ್ಧನೆ ದಾಖಲೆಗಳನ್ನು ಆಧರಿಸಿದ 7-ದಿನಗಳ ಪುನರಾವರ್ತನಾ ವೇಳಾಪಟ್ಟಿ.'
+              : 'Deterministic 7-day revision schedule informed by lesson history and reinforcement records.'}
           </p>
         </div>
 
@@ -140,12 +144,12 @@ export const ExamRevisionPlanner: React.FC<ExamRevisionPlannerProps> = ({
             className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-md shadow-indigo-600/20 active:scale-95 transition-all"
           >
             <Printer className="w-3.5 h-3.5" />
-            <span>🖨️ View 1-Page Revision Storyboard</span>
+            <span>{language === 'KN' ? '🖨️ 1-ಪುಟದ ದೃಶ್ಯ ಪುನರಾವರ್ತನಾ ಫಲಕ' : '🖨️ View 1-Page Revision Storyboard'}</span>
           </button>
 
           <div className="flex items-center gap-2">
             <label htmlFor="exam-date-picker" className="text-xs font-bold text-slate-600">
-              Exam:
+              {language === 'KN' ? 'ಪರೀಕ್ಷಾ ಗುರಿ:' : 'Exam:'}
             </label>
             <input
               id="exam-date-picker"
@@ -162,7 +166,11 @@ export const ExamRevisionPlanner: React.FC<ExamRevisionPlannerProps> = ({
       <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between gap-3 text-xs text-amber-950 font-medium">
         <div className="flex items-center gap-2">
           <Info className="w-4 h-4 text-amber-600 shrink-0" />
-          <span>Deterministic timetable generated from concept graph milestone records. Teacher decides.</span>
+          <span>
+            {language === 'KN'
+              ? 'ಪರಿಕಲ್ಪನಾ-ನಕ್ಷೆ ದಾಖಲೆಗಳಿಂದ ರೂಪಿಸಲಾದ ವೇಳಾಪಟ್ಟಿ. ಶಿಕ್ಷಕರೇ ನಿರ್ಧರಿಸುತ್ತಾರೆ.'
+              : 'Deterministic timetable generated from concept graph milestone records. Teacher decides.'}
+          </span>
         </div>
         <button
           onClick={handleAddSession}
@@ -170,7 +178,7 @@ export const ExamRevisionPlanner: React.FC<ExamRevisionPlannerProps> = ({
           className="min-h-[36px] px-3 py-1 rounded-xl bg-amber-200/80 hover:bg-amber-300 text-amber-950 font-bold text-xs flex items-center gap-1 cursor-pointer shrink-0"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>Add Session</span>
+          <span>{language === 'KN' ? 'ಅವಧಿ ಸೇರಿಸಿ' : 'Add Session'}</span>
         </button>
       </div>
 
@@ -254,7 +262,7 @@ export const ExamRevisionPlanner: React.FC<ExamRevisionPlannerProps> = ({
                     type="button"
                     className="px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold cursor-pointer"
                   >
-                    Save Changes
+                    {language === 'KN' ? 'ಬದಲಾವಣೆ ಉಳಿಸಿ' : 'Save Changes'}
                   </button>
                 </div>
               ) : (
@@ -270,14 +278,14 @@ export const ExamRevisionPlanner: React.FC<ExamRevisionPlannerProps> = ({
       {/* Save Plan Button */}
       <div className="flex items-center justify-between pt-3 border-t border-slate-100">
         <span className="text-xs text-slate-400 font-medium">
-          Total Revision Sessions: {plan.sessions.length} days
+          {language === 'KN' ? 'ಒಟ್ಟು ಪುನರಾವರ್ತನಾ ಅವಧಿಗಳು:' : 'Total Revision Sessions:'} {plan.sessions.length} {language === 'KN' ? 'ದಿನಗಳು' : 'days'}
         </span>
 
         <div className="flex items-center gap-2">
           {saveSuccess && (
             <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
               <Check className="w-4 h-4" />
-              <span>Exam plan saved!</span>
+              <span>{language === 'KN' ? 'ಪರೀಕ್ಷಾ ಯೋಜನೆ ಉಳಿಸಲಾಗಿದೆ!' : 'Exam plan saved!'}</span>
             </span>
           )}
 
@@ -287,7 +295,7 @@ export const ExamRevisionPlanner: React.FC<ExamRevisionPlannerProps> = ({
             className="min-h-[44px] px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold text-xs shadow-md shadow-indigo-600/20 flex items-center gap-1.5 cursor-pointer"
           >
             <Save className="w-3.5 h-3.5" />
-            <span>Save Exam Plan</span>
+            <span>{language === 'KN' ? 'ಪರೀಕ್ಷಾ ಯೋಜನೆ ಉಳಿಸಿ' : 'Save Exam Plan'}</span>
           </button>
         </div>
       </div>
@@ -299,6 +307,7 @@ export const ExamRevisionPlanner: React.FC<ExamRevisionPlannerProps> = ({
           onClose={() => setShowPrintableSheet(false)}
           graph={graph}
           plan={plan}
+          language={language}
         />
       )}
     </div>

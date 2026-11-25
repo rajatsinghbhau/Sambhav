@@ -6,9 +6,10 @@ import { sounds } from '../../utils/soundEffects';
 
 interface TeacherDoubtInboxProps {
   onDoubtAnswered?: () => void;
+  language?: 'EN' | 'KN';
 }
 
-export const TeacherDoubtInbox: React.FC<TeacherDoubtInboxProps> = ({ onDoubtAnswered }) => {
+export const TeacherDoubtInbox: React.FC<TeacherDoubtInboxProps> = ({ onDoubtAnswered, language = 'EN' }) => {
   const [doubts, setDoubts] = useState<Doubt[]>(() => offlineStorage.loadDoubts());
   const [answeringDoubtId, setAnsweringDoubtId] = useState<string | null>(null);
   const [answerDraft, setAnswerDraft] = useState<string>('');
@@ -74,22 +75,24 @@ export const TeacherDoubtInbox: React.FC<TeacherDoubtInboxProps> = ({ onDoubtAns
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-1">
             <MessageSquare className="w-3.5 h-3.5" />
-            <span>Classroom Doubt Inbox</span>
+            <span>{language === 'KN' ? 'ತರಗತಿ ಸಂದೇಹಗಳ ಇನ್‌ಬಾಕ್ಸ್' : 'Classroom Doubt Inbox'}</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Student Doubts & Questions
+            {language === 'KN' ? 'ವಿದ್ಯಾರ್ಥಿ ಸಂದೇಹಗಳು ಮತ್ತು ಪ್ರಶ್ನೆಗಳು' : 'Student Doubts & Questions'}
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Review questions submitted by children during communication and teach-back.
+            {language === 'KN'
+              ? 'ಸಂವಹನ ಮತ್ತು ಪಾಠದ ಅವಧಿಯಲ್ಲಿ ಮಕ್ಕಳು ಕೇಳಿದ ಪ್ರಶ್ನೆಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಉತ್ತರಿಸಿ.'
+              : 'Review questions submitted by children during communication and teach-back.'}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-black">
-            {pendingDoubts.length} Pending
+            {pendingDoubts.length} {language === 'KN' ? 'ಬಾಕಿ ಇದೆ' : 'Pending'}
           </span>
           <span className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 text-xs font-black">
-            {resolvedDoubts.length} Resolved
+            {resolvedDoubts.length} {language === 'KN' ? 'ಉತ್ತರಿಸಲಾಗಿದೆ' : 'Resolved'}
           </span>
         </div>
       </div>

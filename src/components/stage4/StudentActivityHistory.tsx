@@ -4,7 +4,11 @@ import { StudentActivityLog } from '../../types/stage4';
 import { User, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects';
 
-export const StudentActivityHistory: React.FC = () => {
+interface StudentActivityHistoryProps {
+  language?: 'EN' | 'KN';
+}
+
+export const StudentActivityHistory: React.FC<StudentActivityHistoryProps> = ({ language = 'EN' }) => {
   const [logs] = useState<StudentActivityLog[]>(() => offlineStorage.loadStudentActivities());
   const [selectedStudentId, setSelectedStudentId] = useState<string>(logs[0]?.studentId || 's-ananya');
 
@@ -17,18 +21,20 @@ export const StudentActivityHistory: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold mb-1">
             <User className="w-3.5 h-3.5" />
-            <span>Learning Journey Record</span>
+            <span>{language === 'KN' ? 'ಕಲಿಕಾ ಪ್ರಯಾಣದ ದಾಖಲೆ' : 'Learning Journey Record'}</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Student Activity History
+            {language === 'KN' ? 'ವಿದ್ಯಾರ್ಥಿ ಚಟುವಟಿಕೆ ಇತಿಹಾಸ' : 'Student Activity History'}
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Chronological evidence of interaction, communication, and milestone attempts.
+            {language === 'KN'
+              ? 'ಸಂವಹನ ಮತ್ತು ಪಾಠದ ಹಂತಗಳ ಕಾಲಾನುಕ್ರಮದ ಸಾಕ್ಷ್ಯಾಧಾರ ದಾಖಲೆಗಳು.'
+              : 'Chronological evidence of interaction, communication, and milestone attempts.'}
           </p>
         </div>
 
         <div className="bg-slate-100 text-slate-600 px-3.5 py-1.5 rounded-xl text-xs font-bold self-start sm:self-center">
-          Objective Evidence Log
+          {language === 'KN' ? 'ವಸ್ತುನಿಷ್ಠ ಸಾಕ್ಷ್ಯ ದಾಖಲೆ' : 'Objective Evidence Log'}
         </div>
       </div>
 

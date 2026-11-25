@@ -9,11 +9,13 @@ import { sounds } from '../../utils/soundEffects';
 
 interface RevisionQueueProps {
   graph: ConceptGraph;
+  language?: 'EN' | 'KN';
   onAddConceptToLesson?: (conceptId: string) => void;
 }
 
 export const RevisionQueue: React.FC<RevisionQueueProps> = ({
   graph,
+  language = 'EN',
   onAddConceptToLesson
 }) => {
   const [items, setItems] = useState<RevisionItem[]>(() => {
@@ -115,13 +117,15 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold mb-1">
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Spaced Revision Engine</span>
+            <span>{language === 'KN' ? 'ಅಂತರದ ಪುನರಾವರ್ತನಾ ಎಂಜಿನ್' : 'Spaced Revision Engine'}</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Curriculum Revision Queue
+            {language === 'KN' ? 'ಪಠ್ಯಕ್ರಮ ಪುನರಾವರ್ತನಾ ಸಾಲು' : 'Curriculum Revision Queue'}
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Post-class evidence-informed spaced intervals (+2d, +7d, +21d, Exam).
+            {language === 'KN'
+              ? 'ತರಗತಿ ಸಾಕ್ಷ್ಯಾಧಾರಿತ ಅಂತರದ ಪುನರಾವರ್ತನೆ (+2 ದಿನ, +7 ದಿನ, +21 ದಿನ, ಪರೀಕ್ಷೆ).'
+              : 'Post-class evidence-informed spaced intervals (+2d, +7d, +21d, Exam).'}
           </p>
         </div>
 
@@ -129,7 +133,7 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
           <div className="bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
             <Info className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-            <span>Suggested revision schedule. Teacher decides.</span>
+            <span>{language === 'KN' ? 'ಸೂಚಿಸಲಾದ ವೇಳಾಪಟ್ಟಿ. ಶಿಕ್ಷಕರೇ ನಿರ್ಧರಿಸುತ್ತಾರೆ.' : 'Suggested revision schedule. Teacher decides.'}</span>
           </div>
 
           <button
@@ -138,7 +142,7 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
             className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-md shadow-indigo-600/20 active:scale-95 transition-all"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>✨ AI Adaptive Spacing Optimizer</span>
+            <span>{language === 'KN' ? '✨ AI ಅಂತರ ಸರಿಹೊಂದಿಕೆ' : '✨ AI Adaptive Spacing Optimizer'}</span>
           </button>
         </div>
       </div>
@@ -152,14 +156,14 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-black text-slate-900">
-                Class Retention & Spacing Health
+                {language === 'KN' ? 'ತರಗತಿಯ ಧಾರಣ ಸಾಮರ್ಥ್ಯ ಮತ್ತು ಅಂತರ ಆರೋಗ್ಯ' : 'Class Retention & Spacing Health'}
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800">
-                {retentionHealthPercent >= 80 ? 'Optimal' : 'Needs Reinforcement'}
+                {retentionHealthPercent >= 80 ? (language === 'KN' ? 'ಉತ್ತಮ' : 'Optimal') : (language === 'KN' ? 'ಬಲವರ್ಧನೆ ಅಗತ್ಯ' : 'Needs Reinforcement')}
               </span>
             </div>
             <p className="text-[11px] text-slate-500 font-semibold mt-0.5">
-              {completedCount} concepts reviewed • Automated spaced intervals: +2d, +7d, +21d.
+              {completedCount} {language === 'KN' ? 'ಪರಿಕಲ್ಪನೆಗಳನ್ನು ಪರಿಶೀಲಿಸಲಾಗಿದೆ • ಅಂತರಗಳು: +2ದಿನ, +7ದಿನ, +21ದಿನ.' : 'concepts reviewed • Automated spaced intervals: +2d, +7d, +21d.'}
             </p>
           </div>
         </div>
@@ -182,9 +186,9 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
       {/* Queue Section Tabs */}
       <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl border border-slate-200">
         {[
-          { id: 'due_today', label: 'Due Today', emoji: '🔔', count: items.filter(i => i.section === 'due_today' && i.status !== 'completed').length },
-          { id: 'coming_up', label: 'Coming Up', emoji: '📅', count: items.filter(i => i.section === 'coming_up').length },
-          { id: 'before_exam', label: 'Before Exam', emoji: '🎯', count: items.filter(i => i.section === 'before_exam').length },
+          { id: 'due_today', label: language === 'KN' ? 'ಇಂದು ಬಾಕಿ' : 'Due Today', emoji: '🔔', count: items.filter(i => i.section === 'due_today' && i.status !== 'completed').length },
+          { id: 'coming_up', label: language === 'KN' ? 'ಮುಂದೆ ಬರಲಿರುವುದು' : 'Coming Up', emoji: '📅', count: items.filter(i => i.section === 'coming_up').length },
+          { id: 'before_exam', label: language === 'KN' ? 'ಪರೀಕ್ಷೆಯ ಮೊದಲು' : 'Before Exam', emoji: '🎯', count: items.filter(i => i.section === 'before_exam').length },
         ].map(tab => (
           <button
             key={tab.id}
@@ -212,11 +216,13 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
       <div className="space-y-3">
         {filteredItems.length === 0 ? (
           <div className="p-8 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-slate-200">
-            No revision items currently in this section.
+            {language === 'KN' ? 'ಈ ವಿಭಾಗದಲ್ಲಿ ಪ್ರಸ್ತುತ ಯಾವುದೇ ಪುನರಾವರ್ತನಾ ಅಂಶಗಳಿಲ್ಲ.' : 'No revision items currently in this section.'}
           </div>
         ) : (
           filteredItems.map(item => {
             const isCompleted = item.status === 'completed';
+            const node = graph.nodes.find(n => n.id === item.conceptId);
+            const labelDisplay = language === 'KN' ? (node?.kannadaLabel || item.conceptLabel) : item.conceptLabel;
 
             return (
               <div
@@ -235,14 +241,14 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
                     <div>
                       <div className="flex items-center gap-2">
                         <h4 className="text-base font-black text-slate-900">
-                          {item.conceptLabel}
+                          {labelDisplay}
                         </h4>
                         <span className="text-[10px] font-black uppercase text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
-                          Due: {item.dueDate}
+                          {language === 'KN' ? 'ಬಾಕಿ:' : 'Due:'} {item.dueDate}
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 font-medium mt-0.5">
-                        Reason: {item.reason}
+                        {language === 'KN' ? 'ಕಾರಣ:' : 'Reason:'} {item.reason}
                       </p>
                     </div>
                   </div>
@@ -252,7 +258,7 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
                       ? 'bg-slate-100 text-slate-500'
                       : 'bg-amber-100 text-amber-900'
                   }`}>
-                    {isCompleted ? 'Completed' : 'Review Required'}
+                    {isCompleted ? (language === 'KN' ? 'ಪೂರ್ಣಗೊಂಡಿದೆ' : 'Completed') : (language === 'KN' ? 'ಪರಿಶೀಲನೆ ಅಗತ್ಯ' : 'Review Required')}
                   </span>
                 </div>
 
@@ -262,10 +268,9 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
                     <button
                       onClick={() => {
                         sounds.playPop();
-                        const node = graph.nodes.find(n => n.id === item.conceptId);
                         setActiveCheckpointConcept({
                           id: item.conceptId,
-                          label: item.conceptLabel,
+                          label: labelDisplay,
                           symbol: item.conceptSymbol,
                           explanation: node?.explanation || ''
                         });
@@ -274,7 +279,7 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
                       className="min-h-[44px] px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200 text-indigo-900 font-extrabold text-xs flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all active:scale-95"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                      <span>Quick Checkpoint</span>
+                      <span>{language === 'KN' ? 'ತ್ವರಿತ ಪರಿಶೀಲನೆ' : 'Quick Checkpoint'}</span>
                     </button>
 
                     <button
@@ -283,7 +288,7 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
                       className="min-h-[44px] px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-2xs"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Mark Reviewed</span>
+                      <span>{language === 'KN' ? 'ಪರಿಶೀಲಿಸಲಾಗಿದೆ' : 'Mark Reviewed'}</span>
                     </button>
 
                     <button
@@ -292,7 +297,7 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
                       className="min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
                     >
                       <Clock className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Move Date</span>
+                      <span>{language === 'KN' ? 'ದಿನಾಂಕ ಬದಲಾಯಿಸಿ' : 'Move Date'}</span>
                     </button>
 
                     <button
@@ -301,7 +306,7 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
                       className="min-h-[44px] px-3.5 py-2 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
                     >
                       <PlusCircle className="w-3.5 h-3.5" />
-                      <span>Add to Lesson</span>
+                      <span>{language === 'KN' ? 'ಪಾಠಕ್ಕೆ ಸೇರಿಸಿ' : 'Add to Lesson'}</span>
                     </button>
                   </div>
                 )}
@@ -320,12 +325,16 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
           conceptLabel={activeCheckpointConcept.label}
           conceptSymbol={activeCheckpointConcept.symbol}
           conceptExplanation={activeCheckpointConcept.explanation}
+          language={language}
           onMarkReviewed={(cid) => {
             const match = items.find(it => it.conceptId === cid);
             if (match) {
               handleMarkCompleted(match.id);
             }
-            setActionNotice(`🌟 Checkpoint completed for ${activeCheckpointConcept.label}! Marked as reviewed.`);
+            setActionNotice(language === 'KN' 
+              ? `🌟 ${activeCheckpointConcept.label} ಗಾಗಿ ಪರಿಶೀಲನೆ ಪೂರ್ಣಗೊಂಡಿದೆ! ಪರಿಶೀಲಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.`
+              : `🌟 Checkpoint completed for ${activeCheckpointConcept.label}! Marked as reviewed.`
+            );
             setTimeout(() => setActionNotice(null), 4000);
           }}
         />

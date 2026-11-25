@@ -8,12 +8,14 @@ interface PrepareLessonModalProps {
   isOpen: boolean;
   onClose: () => void;
   onApproveGraph: (approvedGraph: ConceptGraph) => void;
+  language?: 'EN' | 'KN';
 }
 
 export const PrepareLessonModal: React.FC<PrepareLessonModalProps> = ({
   isOpen,
   onClose,
   onApproveGraph,
+  language = 'EN',
 }) => {
   const defaultLessonText =
     'The Sun heats water on Earth. The water becomes water vapour through evaporation. The vapour rises and cools. During condensation, water droplets form clouds. When the droplets become heavy, rain falls.';
@@ -71,10 +73,12 @@ export const PrepareLessonModal: React.FC<PrepareLessonModalProps> = ({
             </div>
             <div>
               <h2 id="prepare-lesson-title" className="text-xl sm:text-2xl font-black text-slate-900">
-                Prepare Today's Lesson
+                {language === 'KN' ? 'ಇಂದಿನ ಪಾಠ ಸಿದ್ಧಪಡಿಸಿ' : "Prepare Today's Lesson"}
               </h2>
               <p className="text-xs text-slate-500 font-semibold">
-                AI suggests candidate structure • Strict validation • Teacher approves
+                {language === 'KN'
+                  ? 'AI ರಚನೆ ಸೂಚಿಸುತ್ತದೆ • ಕಠಿಣ ಮೌಲ್ಯೀಕರಣ • ಶಿಕ್ಷಕರು ಅನುಮೋದಿಸುತ್ತಾರೆ'
+                  : 'AI suggests candidate structure • Strict validation • Teacher approves'}
               </p>
             </div>
           </div>
@@ -90,7 +94,7 @@ export const PrepareLessonModal: React.FC<PrepareLessonModalProps> = ({
 
         <div className="space-y-2">
           <label htmlFor="lesson-input" className="text-xs font-black uppercase tracking-wider text-slate-600">
-            Lesson Content / Curriculum Topic
+            {language === 'KN' ? 'ಪಾಠದ ವಿಷಯ / ಪಠ್ಯಕ್ರಮದ ವಿಷಯ' : 'Lesson Content / Curriculum Topic'}
           </label>
           <textarea
             id="lesson-input"
@@ -118,12 +122,12 @@ export const PrepareLessonModal: React.FC<PrepareLessonModalProps> = ({
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Generating & Validating Candidate Graph...</span>
+                <span>{language === 'KN' ? 'ಪರಿಕಲ್ಪನಾ ನಕ್ಷೆ ರಚಿಸಲಾಗುತ್ತಿದೆ...' : 'Generating & Validating Candidate Graph...'}</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4 text-indigo-200" />
-                <span>Generate Concept Graph</span>
+                <span>{language === 'KN' ? '✨ ಪರಿಕಲ್ಪನಾ ನಕ್ಷೆ ರಚಿಸಿ' : 'Generate Concept Graph'}</span>
               </>
             )}
           </button>
@@ -134,20 +138,24 @@ export const PrepareLessonModal: React.FC<PrepareLessonModalProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-base font-black text-slate-900">
-                  Review Graph
+                  {language === 'KN' ? 'ನಕ್ಷೆ ಪರಿಶೀಲನೆ' : 'Review Graph'}
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  Teacher may edit node labels only. Graph relationships and order are locked.
+                  {language === 'KN'
+                    ? 'ಶಿಕ್ಷಕರು ಹಂತದ ಹೆಸರುಗಳನ್ನು ಮಾತ್ರ ಸಂಪಾದಿಸಬಹುದು.'
+                    : 'Teacher may edit node labels only. Graph relationships and order are locked.'}
                 </p>
               </div>
               <span className="text-xs px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-extrabold">
-                Validated
+                {language === 'KN' ? 'ದೃಢೀಕರಿಸಲಾಗಿದೆ' : 'Validated'}
               </span>
             </div>
 
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
               <div className="text-xs font-black uppercase tracking-wider text-slate-400">
-                Validated Linear Milestone Nodes ({candidateGraph.nodes.length})
+                {language === 'KN'
+                  ? `ದೃಢೀಕೃತ ರೇಖೀಯ ಮೈಲಿಗಲ್ಲುಗಳು (${candidateGraph.nodes.length})`
+                  : `Validated Linear Milestone Nodes (${candidateGraph.nodes.length})`}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto p-1">
                 {candidateGraph.nodes.map((node, i) => (
@@ -155,7 +163,7 @@ export const PrepareLessonModal: React.FC<PrepareLessonModalProps> = ({
                     <span className="text-2xl">{node.symbol}</span>
                     <div className="flex-1 min-w-0">
                       <label htmlFor={`edit-node-${node.id}`} className="text-[10px] text-slate-400 block font-bold">
-                        Step {i + 1} Label:
+                        {language === 'KN' ? `ಹಂತ ${i + 1} ಹೆಸರು:` : `Step ${i + 1} Label:`}
                       </label>
                       <input
                         id={`edit-node-${node.id}`}
@@ -176,7 +184,7 @@ export const PrepareLessonModal: React.FC<PrepareLessonModalProps> = ({
                 type="button"
                 className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 cursor-pointer"
               >
-                Cancel
+                {language === 'KN' ? 'ರದ್ದುಮಾಡಿ' : 'Cancel'}
               </button>
               <button
                 onClick={handleApprove}
@@ -184,7 +192,7 @@ export const PrepareLessonModal: React.FC<PrepareLessonModalProps> = ({
                 className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-xs flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-600/25"
               >
                 <Check className="w-4 h-4 stroke-[3]" />
-                <span>Approve Concept Graph</span>
+                <span>{language === 'KN' ? 'ಪರಿಕಲ್ಪನಾ ನಕ್ಷೆ ಅನುಮೋದಿಸಿ' : 'Approve Concept Graph'}</span>
               </button>
             </div>
           </div>

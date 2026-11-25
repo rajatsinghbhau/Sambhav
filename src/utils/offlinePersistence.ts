@@ -394,7 +394,7 @@ export const offlineStorage = {
  * Non-blocking: if it fails, normal browser app continues without interruption.
  */
 export function registerServiceWorker() {
-  if (typeof window !== 'undefined' && 'serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator && (import.meta as any).env?.PROD) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js').catch(err => {
         // Non-blocking fallback

@@ -7,11 +7,13 @@ import { sounds } from '../../utils/soundEffects';
 
 interface ClassLearningSnapshotProps {
   graph: ConceptGraph;
+  language?: 'EN' | 'KN';
   onAddReinforcementToPlan?: (conceptId: string) => void;
 }
 
 export const ClassLearningSnapshot: React.FC<ClassLearningSnapshotProps> = ({
   graph,
+  language = 'EN',
   onAddReinforcementToPlan
 }) => {
   const snapshot = getClassSnapshot(DEMO_STUDENTS, graph);
@@ -36,19 +38,21 @@ export const ClassLearningSnapshot: React.FC<ClassLearningSnapshotProps> = ({
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold mb-1">
             <Users className="w-3.5 h-3.5" />
-            <span>Class Learning Snapshot</span>
+            <span>{language === 'KN' ? 'ತರಗತಿ ಕಲಿಕೆಯ ಚಿತ್ರಣ' : 'Class Learning Snapshot'}</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Class Evidence Aggregate
+            {language === 'KN' ? 'ತರಗತಿ ಸಾಕ್ಷ್ಯ ಸಂಗ್ರಹ' : 'Class Evidence Aggregate'}
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Aggregated demonstrated milestones across the cohort evaluated by pure deterministic rules.
+            {language === 'KN'
+              ? 'ವಿದ್ಯಾರ್ಥಿಗಳ ಸಂಪೂರ್ಣ ಸಾಕ್ಷ್ಯಾಧಾರಗಳನ್ನು ಶುದ್ಧ ನಿಯಮಗಳ ಮೂಲಕ ಮೌಲ್ಯಮಾಪನ ಮಾಡಲಾಗಿದೆ.'
+              : 'Aggregated demonstrated milestones across the cohort evaluated by pure deterministic rules.'}
           </p>
         </div>
 
         {/* Fictional Data Badge (Strict Section 5 compliance) */}
         <div className="bg-slate-100 border border-slate-200 text-slate-600 px-3.5 py-1.5 rounded-xl text-xs font-bold self-start sm:self-center">
-          Demo Class — Fictional Data
+          {language === 'KN' ? 'ಡೆಮೊ ತರಗತಿ — ಕಾಲ್ಪನಿಕ ಡೇಟಾ' : 'Demo Class — Fictional Data'}
         </div>
       </div>
 
@@ -62,13 +66,15 @@ export const ClassLearningSnapshot: React.FC<ClassLearningSnapshotProps> = ({
               </span>
               <div>
                 <span className="text-[10px] font-black uppercase text-amber-800 tracking-wider">
-                  Class Reinforcement Opportunity
+                  {language === 'KN' ? 'ತರಗತಿ ಬಲವರ್ಧನೆ ಅವಕಾಶ' : 'Class Reinforcement Opportunity'}
                 </span>
                 <h4 className="text-base font-extrabold text-slate-900">
-                  {reinforcementNode.label}: {maxYellowCount} students need reinforcement
+                  {language === 'KN' ? (reinforcementNode.kannadaLabel || reinforcementNode.label) : reinforcementNode.label}: {maxYellowCount} {language === 'KN' ? 'ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಬಲವರ್ಧನೆ ಅಗತ್ಯವಿದೆ' : 'students need reinforcement'}
                 </h4>
                 <p className="text-xs text-slate-600 font-medium mt-0.5">
-                  Consider revisiting this concept through hands-on demonstration before moving forward.
+                  {language === 'KN'
+                    ? 'ಮುಂದೆ ಹೋಗುವ ಮೊದಲು ಪ್ರಾಯೋಗಿಕ ಪ್ರಾತ್ಯಕ್ಷಿಕೆಯ ಮೂಲಕ ಈ ಪರಿಕಲ್ಪನೆಯನ್ನು ಪುನರಾವರ್ತಿಸಿ.'
+                    : 'Consider revisiting this concept through hands-on demonstration before moving forward.'}
                 </p>
               </div>
             </div>
@@ -84,7 +90,7 @@ export const ClassLearningSnapshot: React.FC<ClassLearningSnapshotProps> = ({
               className="min-h-[44px] px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-amber-950 font-black text-xs flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap self-start sm:self-center"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Add to Tomorrow's Plan</span>
+              <span>{language === 'KN' ? 'ನಾಳೆಯ ಯೋಜನೆಗೆ ಸೇರಿಸಿ' : "Add to Tomorrow's Plan"}</span>
             </button>
           </div>
         </div>
@@ -103,8 +109,12 @@ export const ClassLearningSnapshot: React.FC<ClassLearningSnapshotProps> = ({
               <div className="flex items-center gap-2.5">
                 <span className="text-2xl p-1.5 bg-white rounded-xl shadow-2xs">{node.symbol}</span>
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-sm font-extrabold text-slate-900 truncate">{node.label}</h4>
-                  <span className="text-[10px] text-slate-400 font-semibold">{node.kannadaLabel}</span>
+                  <h4 className="text-sm font-extrabold text-slate-900 truncate">
+                    {language === 'KN' ? (node.kannadaLabel || node.label) : node.label}
+                  </h4>
+                  <span className="text-[10px] text-slate-400 font-semibold">
+                    {language === 'KN' ? node.label : node.kannadaLabel}
+                  </span>
                 </div>
               </div>
 
@@ -113,7 +123,7 @@ export const ClassLearningSnapshot: React.FC<ClassLearningSnapshotProps> = ({
                 <div className="flex items-center justify-between text-emerald-800 bg-emerald-50/80 px-2.5 py-1 rounded-lg border border-emerald-200">
                   <span className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>🟢 Demonstrated</span>
+                    <span>🟢 {language === 'KN' ? 'ದೃಢೀಕರಿಸಲಾಗಿದೆ' : 'Demonstrated'}</span>
                   </span>
                   <span className="font-black">{counts.green}</span>
                 </div>
@@ -121,7 +131,7 @@ export const ClassLearningSnapshot: React.FC<ClassLearningSnapshotProps> = ({
                 <div className="flex items-center justify-between text-amber-900 bg-amber-50/80 px-2.5 py-1 rounded-lg border border-amber-200">
                   <span className="flex items-center gap-1.5">
                     <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                    <span>🟡 Needs reinforcement</span>
+                    <span>🟡 {language === 'KN' ? 'ಬಲವರ್ಧನೆ ಅಗತ್ಯ' : 'Needs reinforcement'}</span>
                   </span>
                   <span className="font-black">{counts.yellow}</span>
                 </div>
@@ -129,7 +139,7 @@ export const ClassLearningSnapshot: React.FC<ClassLearningSnapshotProps> = ({
                 <div className="flex items-center justify-between text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
                   <span className="flex items-center gap-1.5">
                     <CircleDashed className="w-3.5 h-3.5 text-slate-400" />
-                    <span>⚪ Not yet demonstrated</span>
+                    <span>⚪ {language === 'KN' ? 'ಇನ್ನೂ ಪ್ರದರ್ಶಿಸಿಲ್ಲ' : 'Not yet demonstrated'}</span>
                   </span>
                   <span className="font-black">{counts.white}</span>
                 </div>

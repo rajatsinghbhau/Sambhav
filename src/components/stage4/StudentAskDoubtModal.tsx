@@ -10,22 +10,27 @@ interface StudentAskDoubtModalProps {
   onClose: () => void;
   graph: ConceptGraph;
   studentName?: string;
+  language?: 'EN' | 'KN';
 }
 
 export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
   isOpen,
   onClose,
   graph,
-  studentName = 'Ananya'
+  studentName = 'Ananya',
+  language = 'EN'
 }) => {
   const [selectedConceptId, setSelectedConceptId] = useState<string>('condensation');
-  const [questionText, setQuestionText] = useState<string>('Why does water vapour become drops on the cold glass?');
+  const [questionText, setQuestionText] = useState<string>(
+    language === 'KN' ? 'ತಣ್ಣನೆಯ ಲೋಟದ ಮೇಲೆ ನೀರಿನ ಹನಿಗಳು ಏಕೆ ಉಂಟಾಗುತ್ತವೆ?' : 'Why does water vapour become drops on the cold glass?'
+  );
   const [submittedSuccess, setSubmittedSuccess] = useState<boolean>(false);
   const [myDoubts, setMyDoubts] = useState<Doubt[]>(() => offlineStorage.loadDoubts());
 
   if (!isOpen) return null;
 
   const selectedNode = graph.nodes.find(n => n.id === selectedConceptId) || graph.nodes[0];
+  const nodeDisplay = language === 'KN' ? (selectedNode.kannadaLabel || selectedNode.label) : selectedNode.label;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +43,7 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
       studentName,
       conceptId: selectedNode.id,
       conceptSymbol: selectedNode.symbol,
-      conceptLabel: selectedNode.label,
+      conceptLabel: nodeDisplay,
       question: questionText.trim(),
       status: 'pending',
       createdAt: new Date().toISOString()
@@ -71,10 +76,10 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
             </div>
             <div>
               <h3 className="text-xl font-black text-slate-900 tracking-tight">
-                Ask a Doubt
+                {language === 'KN' ? 'ಸಂದೇಹ ಕೇಳಿ (Ask a Doubt)' : 'Ask a Doubt'}
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Send your question directly to your teacher
+                {language === 'KN' ? 'ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಶಿಕ್ಷಕರಿಗೆ ನೇರವಾಗಿ ಕಳುಹಿಸಿ' : 'Send your question directly to your teacher'}
               </p>
             </div>
           </div>
@@ -94,10 +99,12 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
               <CheckCircle2 className="w-9 h-9" />
             </div>
             <h4 className="text-lg font-black text-slate-900">
-              Doubt sent to your teacher.
+              {language === 'KN' ? 'ಶಿಕ್ಷಕರಿಗೆ ಸಂದೇಹವನ್ನು ಕಳುಹಿಸಲಾಗಿದೆ.' : 'Doubt sent to your teacher.'}
             </h4>
             <p className="text-xs text-slate-500 max-w-xs mx-auto">
-              Your teacher will see your question and reply during today's lesson.
+              {language === 'KN'
+                ? 'ನಿಮ್ಮ ಶಿಕ್ಷಕರು ಈ ಪ್ರಶ್ನೆಯನ್ನು ನೋಡಿ ತರಗತಿಯಲ್ಲಿ ಉತ್ತರಿಸುತ್ತಾರೆ.'
+                : "Your teacher will see your question and reply during today's lesson."}
             </p>
           </div>
         ) : (
@@ -105,7 +112,7 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
             {/* Concept Picker */}
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
-                1. Which picture do you have a question about?
+                {language === 'KN' ? '1. ಯಾವ ಚಿತ್ರದ ಬಗ್ಗೆ ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಇದೆ?' : '1. Which picture do you have a question about?'}
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {graph.nodes.map(node => (
@@ -123,7 +130,7 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
                     }`}
                   >
                     <span>{node.symbol}</span>
-                    <span className="truncate">{node.label}</span>
+                    <span className="truncate">{language === 'KN' ? (node.kannadaLabel || node.label) : node.label}</span>
                   </button>
                 ))}
               </div>
@@ -132,14 +139,14 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
             {/* Question Input */}
             <div>
               <label htmlFor="doubt-input" className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
-                2. Enter your question:
+                {language === 'KN' ? '2. ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ನಮೂದಿಸಿ:' : '2. Enter your question:'}
               </label>
               <textarea
                 id="doubt-input"
                 rows={3}
                 value={questionText}
                 onChange={e => setQuestionText(e.target.value)}
-                placeholder="e.g. Why does water vapour become drops on cold glass?"
+                placeholder={language === 'KN' ? 'ಉದಾಹರಣೆಗೆ: ತಣ್ಣನೆಯ ಲೋಟದ ಮೇಲೆ ನೀರಿನ ಹನಿಗಳು ಏಕೆ ಉಂಟಾಗುತ್ತವೆ?' : 'e.g. Why does water vapour become drops on cold glass?'}
                 className="w-full p-3 rounded-2xl border-2 border-slate-200 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-medium leading-relaxed"
                 required
               />
@@ -147,11 +154,14 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
 
             {/* Quick helper prompts */}
             <div className="flex flex-wrap gap-1.5">
-              {[
-                'Why does water vapour become drops?',
-                'Where does the cold air come from?',
-                'What happens to the cloud next?'
-              ].map(prompt => (
+              {(language === 'KN'
+                ? ['ನೀರಿನ ಆವಿ ಹನಿಗಳಾಗುವುದು ಹೇಗೆ?', 'ತಣ್ಣನೆಯ ಗಾಳಿ ಎಲ್ಲಿಂದ ಬರುತ್ತದೆ?', 'ಮೋಡಗಳು ಮುಂದೆ ಏನಾಗುತ್ತವೆ?']
+                : [
+                    'Why does water vapour become drops?',
+                    'Where does the cold air come from?',
+                    'What happens to the cloud next?'
+                  ]
+              ).map(prompt => (
                 <button
                   key={prompt}
                   type="button"
@@ -170,7 +180,7 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
                 className="w-full min-h-[50px] rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-black text-sm flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-indigo-600/25 btn-tactile"
               >
                 <Send className="w-4 h-4" />
-                <span>Send to Teacher</span>
+                <span>{language === 'KN' ? 'ಶಿಕ್ಷಕರಿಗೆ ಕಳುಹಿಸಿ' : 'Send to Teacher'}</span>
               </button>
             </div>
           </form>
@@ -180,7 +190,7 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
         {myDoubts.length > 0 && !submittedSuccess && (
           <div className="pt-3 border-t border-slate-100 space-y-2">
             <span className="text-xs font-black uppercase tracking-wider text-slate-400 block">
-              Previous Questions & Teacher Answers:
+              {language === 'KN' ? 'ಹಿಂದಿನ ಪ್ರಶ್ನೆಗಳು ಮತ್ತು ಶಿಕ್ಷಕರ ಉತ್ತರಗಳು:' : 'Previous Questions & Teacher Answers:'}
             </span>
             <div className="space-y-2 max-h-40 overflow-y-auto">
               {myDoubts.map(d => (
@@ -194,13 +204,13 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
                         ? 'bg-emerald-100 text-emerald-800'
                         : 'bg-amber-100 text-amber-800'
                     }`}>
-                      {d.status === 'resolved' ? 'Answered' : 'Sent'}
+                      {d.status === 'resolved' ? (language === 'KN' ? 'ಉತ್ತರಿಸಲಾಗಿದೆ' : 'Answered') : (language === 'KN' ? 'ಕಳುಹಿಸಲಾಗಿದೆ' : 'Sent')}
                     </span>
                   </div>
                   <p className="text-slate-600 font-medium">"{d.question}"</p>
                   {d.answer && (
                     <div className="p-2 bg-emerald-50 rounded-lg border border-emerald-200 text-emerald-950 font-bold mt-1">
-                      <span>Teacher's explanation: {d.answer}</span>
+                      <span>{language === 'KN' ? 'ಶಿಕ್ಷಕರ ವಿವರಣೆ:' : "Teacher's explanation:"} {d.answer}</span>
                     </div>
                   )}
                 </div>

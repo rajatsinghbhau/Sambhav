@@ -278,7 +278,9 @@ export function App() {
                 className="min-h-[44px] px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-2 transition-all cursor-pointer shadow-2xs active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
                 <PlusCircle className="w-4 h-4 text-amber-700 shrink-0" />
-                <span className="hidden sm:inline">Prepare Lesson</span>
+                <span className="hidden sm:inline">
+                  {language === 'KN' ? 'ಪಾಠ ಸಿದ್ಧತೆ' : 'Prepare Lesson'}
+                </span>
               </button>
             )}
 
@@ -291,7 +293,7 @@ export function App() {
                 className="min-h-[44px] px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 flex items-center gap-1.5 cursor-pointer transition-colors text-xs font-bold"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Log out</span>
+                <span>{language === 'KN' ? 'ಲಾಗ್ ಔಟ್' : 'Log out'}</span>
               </button>
             )}
           </div>
@@ -352,6 +354,7 @@ export function App() {
           <div className="space-y-6">
             <TeacherDashboard
               graph={graph}
+              language={language}
               beforeEvidence={beforeEvidence}
               afterEvidence={afterEvidence}
               onOpenPrepareLesson={() => setIsPrepareLessonOpen(true)}
@@ -555,6 +558,7 @@ export function App() {
         isOpen={isPrepareLessonOpen}
         onClose={() => setIsPrepareLessonOpen(false)}
         onApproveGraph={handleApproveNewGraph}
+        language={language}
       />
 
       {/* SIMPLIFIED EXPLANATION MODAL (STUDENT) */}
@@ -572,6 +576,7 @@ export function App() {
         onClose={() => setIsAskDoubtOpen(false)}
         graph={graph}
         studentName="Ananya"
+        language={language}
       />
 
       {/* STUDENT REVISION & PAST TOPICS LIBRARY MODAL (STUDENT) */}
