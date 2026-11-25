@@ -4,7 +4,8 @@ import { RevisionItem, RevisionQueueSection } from '../../types/stage4';
 import { generateInitialRevisionQueue } from '../../engine/stage4Engine';
 import { offlineStorage } from '../../utils/offlinePersistence';
 import { RevisionCheckpointModal } from './RevisionCheckpointModal';
-import { CheckCircle2, Clock, RotateCcw, Info, PlusCircle, Sparkles } from 'lucide-react';
+import { AddRevisionItemModal } from './AddRevisionItemModal';
+import { CheckCircle2, Clock, RotateCcw, PlusCircle, Sparkles, Plus } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects';
 
 interface RevisionQueueProps {
@@ -24,6 +25,7 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
 
   const [activeTab, setActiveTab] = useState<RevisionQueueSection>('due_today');
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+  const [showAddItemModal, setShowAddItemModal] = useState<boolean>(false);
   const [activeCheckpointConcept, setActiveCheckpointConcept] = useState<{
     id: string;
     label: string;
@@ -45,7 +47,6 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
     sounds.playPop();
     const updated = items.map(it => {
       if (it.id === id) {
-        // Shift to coming up
         return {
           ...it,
           section: 'coming_up' as const,
@@ -56,7 +57,7 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
     });
     setItems(updated);
     offlineStorage.saveRevisionQueue(updated);
-    setActionNotice('Concept date moved to Coming Up (+3 days).');
+    setActionNotice(language === 'KN' ? 'ಪರಿಕಲ್ಪನೆಯ ದಿನಾಂಕವನ್ನು ಮುಂದಕ್ಕೆ ಸರಿಸಲಾಗಿದೆ (+3 ದಿನಗಳು).' : 'Concept date moved to Coming Up (+3 days).');
     setTimeout(() => setActionNotice(null), 3000);
   };
 
@@ -65,8 +66,21 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
     if (onAddConceptToLesson) {
       onAddConceptToLesson(conceptId);
     }
-    setActionNotice(`Added ${conceptId} to today's active lesson revision plan.`);
+    setActionNotice(language === 'KN' ? `ಇಂದಿನ ಪಾಠ ಯೋಜನೆಗೆ ${conceptId} ಸೇರಿಸಲಾಗಿದೆ.` : `Added ${conceptId} to today's active lesson revision plan.`);
     setTimeout(() => setActionNotice(null), 3000);
+  };
+
+  const handleConfirmAddItem = (newItem: RevisionItem) => {
+    const updated = [newItem, ...items];
+    setItems(updated);
+    offlineStorage.saveRevisionQueue(updated);
+    setActiveTab(newItem.section);
+    setActionNotice(
+      language === 'KN'
+        ? `✨ ${newItem.conceptLabel} ಯಶಸ್ವಿಯಾಗಿ ಪುನರಾವರ್ತನಾ ಸರದಿಗೆ ಸೇರಿಸಲಾಗಿದೆ!`
+        : `✨ ${newItem.conceptLabel} added to spaced revision queue!`
+    );
+    setTimeout(() => setActionNotice(null), 4000);
   };
 
   // AI Adaptive Spacing Optimizer: Prioritizes weak transitions (+2d) & spaces mastered (+7d/+21d)
@@ -129,20 +143,27 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
           </p>
         </div>
 
-        {/* Suggested revision schedule. Teacher decides. Notice */}
+        {/* Suggested revision schedule & actions */}
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
-          <div className="bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
-            <Info className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-            <span>{language === 'KN' ? 'ಸೂಚಿಸಲಾದ ವೇಳಾಪಟ್ಟಿ. ಶಿಕ್ಷಕರೇ ನಿರ್ಧರಿಸುತ್ತಾರೆ.' : 'Suggested revision schedule. Teacher decides.'}</span>
-          </div>
+          <button
+            onClick={() => {
+              sounds.playPop();
+              setShowAddItemModal(true);
+            }}
+            type="button"
+            className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>{language === 'KN' ? 'ಪರಿಕಲ್ಪನೆ ಸೇರಿಸಿ' : 'Add to Queue'}</span>
+          </button>
 
           <button
             onClick={handleAdaptiveOptimize}
             type="button"
-            className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-md shadow-indigo-600/20 active:scale-95 transition-all"
+            className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200 text-indigo-900 text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95 transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>{language === 'KN' ? '✨ AI ಅಂತರ ಸರಿಹೊಂದಿಕೆ' : '✨ AI Adaptive Spacing Optimizer'}</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>{language === 'KN' ? '✨ AI ಅಂತರ ಸರಿಹೊಂದಿಕೆ' : '✨ AI Adaptive Spacing'}</span>
           </button>
         </div>
       </div>
@@ -178,7 +199,7 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
 
       {actionNotice && (
         <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold rounded-xl animate-in fade-in flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{actionNotice}</span>
         </div>
       )}
@@ -215,8 +236,18 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
       {/* Items List */}
       <div className="space-y-3">
         {filteredItems.length === 0 ? (
-          <div className="p-8 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-slate-200">
-            {language === 'KN' ? 'ಈ ವಿಭಾಗದಲ್ಲಿ ಪ್ರಸ್ತುತ ಯಾವುದೇ ಪುನರಾವರ್ತನಾ ಅಂಶಗಳಿಲ್ಲ.' : 'No revision items currently in this section.'}
+          <div className="p-8 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+            <p>{language === 'KN' ? 'ಈ ವಿಭಾಗದಲ್ಲಿ ಪ್ರಸ್ತುತ ಯಾವುದೇ ಪುನರಾವರ್ತನಾ ಅಂಶಗಳಿಲ್ಲ.' : 'No revision items currently in this section.'}</p>
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playPop();
+                setShowAddItemModal(true);
+              }}
+              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+            >
+              {language === 'KN' ? '+ ಈ ವಿಭಾಗಕ್ಕೆ ಪರಿಕಲ್ಪನೆಯನ್ನು ಸೇರಿಸಿ' : '+ Add a concept to this section'}
+            </button>
           </div>
         ) : (
           filteredItems.map(item => {
@@ -315,6 +346,18 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
           })
         )}
       </div>
+
+      {/* Add Item Modal */}
+      {showAddItemModal && (
+        <AddRevisionItemModal
+          isOpen={showAddItemModal}
+          onClose={() => setShowAddItemModal(false)}
+          onAddItem={handleConfirmAddItem}
+          graph={graph}
+          initialSection={activeTab}
+          language={language}
+        />
+      )}
 
       {/* Interactive Quick Checkpoint Modal */}
       {activeCheckpointConcept && (
