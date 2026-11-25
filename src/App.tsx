@@ -13,8 +13,10 @@ import { LimitationsPanel } from './components/LimitationsPanel';
 import { DemoLoginScreen } from './components/DemoLoginScreen';
 import { SimplifiedExplanationModal } from './components/stage4/SimplifiedExplanationModal';
 import { StudentAskDoubtModal } from './components/stage4/StudentAskDoubtModal';
+import { StudentRevisionLibraryModal } from './components/stage4/StudentRevisionLibraryModal';
+import { LearnedTopic } from './types/stage4';
 import { offlineStorage, registerServiceWorker } from './utils/offlinePersistence';
-import { PlusCircle, LogOut } from 'lucide-react';
+import { PlusCircle, LogOut, RotateCcw } from 'lucide-react';
 import { sounds } from './utils/soundEffects';
 
 export type UserRole = 'student' | 'teacher' | null;
@@ -31,51 +33,42 @@ export function App() {
     return offlineStorage.loadCurrentRole();
   });
 
-  const [graph, setGraph] = useState<ConceptGraph>(WATER_CYCLE_GRAPH);
-  const [currentTab, setCurrentTab] = useState<StudentTab>('home');
-  const [language, setLanguage] = useState<'EN' | 'KN'>('EN');
-  const [childChain, setChildChain] = useState<string[]>([]);
+  const [graph, setGraph] = useState<ConceptGraph>(() => {
+    const cachedGraph = offlineStorage.loadApprovedGraph();
+    if (cachedGraph && cachedGraph.nodes && cachedGraph.nodes.length >= 5) {
+      return cachedGraph;
+    }
+    return WATER_CYCLE_GRAPH;
+  });
 
-  const [beforeEvidence, setBeforeEvidence] = useState<GraphEvidenceEvaluation | null>(null);
-  const [afterEvidence, setAfterEvidence] = useState<GraphEvidenceEvaluation | null>(null);
+  const [currentTab, setCurrentTab] = useState<StudentTab>('home');
+
+  const [language, setLanguage] = useState<'EN' | 'KN'>(() => {
+    return offlineStorage.loadLanguage() || 'EN';
+  });
+
+  const [childChain, setChildChain] = useState<string[]>(() => {
+    const cachedState = offlineStorage.loadEvidenceState();
+    return cachedState.childChain && cachedState.childChain.length > 0 ? cachedState.childChain : [];
+  });
+
+  const [beforeEvidence, setBeforeEvidence] = useState<GraphEvidenceEvaluation | null>(() => {
+    const cachedState = offlineStorage.loadEvidenceState();
+    return cachedState.beforeEvidence || null;
+  });
+
+  const [afterEvidence, setAfterEvidence] = useState<GraphEvidenceEvaluation | null>(() => {
+    const cachedState = offlineStorage.loadEvidenceState();
+    return cachedState.afterEvidence || null;
+  });
 
   const [isPrepareLessonOpen, setIsPrepareLessonOpen] = useState<boolean>(false);
   const [isExplainSimplyOpen, setIsExplainSimplyOpen] = useState<boolean>(false);
   const [isAskDoubtOpen, setIsAskDoubtOpen] = useState<boolean>(false);
+  const [isRevisionLibraryOpen, setIsRevisionLibraryOpen] = useState<boolean>(false);
 
-  // Offline Rehydration ("Generate Online. Run Offline.")
+  // Non-blocking Service Worker registration on mount
   useEffect(() => {
-    // 1. Rehydrate language preference
-    const savedLang = offlineStorage.loadLanguage();
-    if (savedLang) {
-      setLanguage(savedLang);
-    }
-
-    // 2. Rehydrate role
-    const savedRole = offlineStorage.loadCurrentRole();
-    if (savedRole) {
-      setUserRole(savedRole);
-    }
-
-    // 3. Rehydrate cached approved graph
-    const cachedGraph = offlineStorage.loadApprovedGraph();
-    if (cachedGraph && cachedGraph.nodes && cachedGraph.nodes.length >= 5) {
-      setGraph(cachedGraph);
-    }
-
-    // 4. Rehydrate cached evidence & chain
-    const cachedState = offlineStorage.loadEvidenceState();
-    if (cachedState.childChain && cachedState.childChain.length > 0) {
-      setChildChain(cachedState.childChain);
-    }
-    if (cachedState.beforeEvidence) {
-      setBeforeEvidence(cachedState.beforeEvidence);
-    }
-    if (cachedState.afterEvidence) {
-      setAfterEvidence(cachedState.afterEvidence);
-    }
-
-    // 5. Non-blocking Service Worker registration
     registerServiceWorker();
   }, []);
 
@@ -161,7 +154,33 @@ export function App() {
     setAfterEvidence(null);
     offlineStorage.saveApprovedGraph(newGraph);
     offlineStorage.saveEvidenceState([], null, null);
+
+    // Automatically archive in student's learned topics revision library
+    const newTopic: LearnedTopic = {
+      id: newGraph.id || `topic-${Date.now()}`,
+      title: newGraph.title || 'Curriculum Science Lesson',
+      titleKn: newGraph.title,
+      subtitle: newGraph.subtitle || 'Teacher Approved Learning Topic',
+      symbol: newGraph.nodes[0]?.symbol || '🔬',
+      graph: newGraph,
+      learnedDate: 'Today',
+      status: 'in_progress',
+      revisionsCompleted: 0
+    };
+    offlineStorage.addOrUpdateLearnedTopic(newTopic);
+
     setCurrentTab('graph');
+  };
+
+  const handleSelectTopicToRevise = (topic: LearnedTopic) => {
+    setGraph(topic.graph);
+    setChildChain([]);
+    setBeforeEvidence(null);
+    setAfterEvidence(null);
+    offlineStorage.saveApprovedGraph(topic.graph);
+    offlineStorage.saveEvidenceState([], null, null);
+    setCurrentTab('graph');
+    sounds.playSuccessChime();
   };
 
   return (
@@ -196,17 +215,17 @@ export function App() {
 
           {/* Active User Persona Badge */}
           {userRole && (
-            <div className="hidden lg:flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-200/70">
+            <div className="hidden xl:flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-200/70">
               <div className="flex items-center gap-2.5">
                 <span className="text-2xl" aria-hidden="true">
                   {userRole === 'teacher' ? '🧑‍🏫' : '👧'}
                 </span>
                 <div>
-                  <div className="text-xs font-black text-slate-900">
+                  <div className="text-xs font-black text-slate-900 leading-tight">
                     {userRole === 'teacher' ? 'Teacher: Educator' : 'Student: Ananya'}
                   </div>
-                  <div className="text-[11px] text-indigo-600 font-extrabold">
-                    {userRole === 'teacher' ? 'Classroom Hub' : 'Water Cycle Lesson'}
+                  <div className="text-[11px] text-indigo-600 font-extrabold truncate max-w-[140px] leading-tight">
+                    {userRole === 'teacher' ? 'Classroom Hub' : (graph.title || 'Water Cycle Lesson')}
                   </div>
                 </div>
               </div>
@@ -344,20 +363,34 @@ export function App() {
         {userRole === 'student' && (
           <>
             {/* PART 15: Student Quick Action Hub */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
-              <div className="flex items-center gap-2.5">
-                <span className="text-2xl p-1.5 bg-indigo-50 rounded-xl">💧</span>
-                <div>
-                  <span className="text-[10px] font-black uppercase text-indigo-700 tracking-wider block">
-                    Today's Lesson
-                  </span>
-                  <h3 className="text-sm sm:text-base font-black text-slate-900">
-                    The Water Cycle
+            <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in fade-in">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="text-2xl p-1.5 bg-indigo-50 rounded-xl shrink-0">
+                  {graph.nodes[0]?.symbol || '💧'}
+                </span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[10px] font-black uppercase text-indigo-700 tracking-wider">
+                      Active Lesson
+                    </span>
+                    <button
+                      onClick={() => {
+                        sounds.playPop();
+                        setIsRevisionLibraryOpen(true);
+                      }}
+                      type="button"
+                      className="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold underline cursor-pointer whitespace-nowrap"
+                    >
+                      (Change / Revise Past Topics)
+                    </button>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 truncate">
+                    {graph.title || 'The Water Cycle'}
                   </h3>
                 </div>
               </div>
 
-              {/* Quick Actions: 📖 Learn, 🔎 Explain Simply, 💬 Ask a Doubt, 🗣️ Communication, 🧩 Teach-Back */}
+              {/* Quick Actions: 📖 Learn, 🔎 Explain Simply, 💬 Ask a Doubt, 🗣️ Communication, 🧩 Teach-Back, 🔄 Revise */}
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => {
@@ -365,7 +398,7 @@ export function App() {
                     setCurrentTab('graph');
                   }}
                   type="button"
-                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                     currentTab === 'graph'
                       ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
                       : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
@@ -380,7 +413,7 @@ export function App() {
                     setIsExplainSimplyOpen(true);
                   }}
                   type="button"
-                  className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-xs font-black text-sky-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                  className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-xs font-black text-sky-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
                 >
                   <span>🔎 Explain Simply</span>
                 </button>
@@ -391,7 +424,7 @@ export function App() {
                     setIsAskDoubtOpen(true);
                   }}
                   type="button"
-                  className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-xs font-black text-indigo-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                  className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-xs font-black text-indigo-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
                 >
                   <span>💬 Ask a Doubt</span>
                 </button>
@@ -402,7 +435,7 @@ export function App() {
                     setCurrentTab('communication');
                   }}
                   type="button"
-                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                     currentTab === 'communication'
                       ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
                       : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
@@ -417,13 +450,25 @@ export function App() {
                     setCurrentTab('teach_back');
                   }}
                   type="button"
-                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                     currentTab === 'teach_back'
                       ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
                       : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
                   }`}
                 >
                   <span>🧩 Tell the Story</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    sounds.playPop();
+                    setIsRevisionLibraryOpen(true);
+                  }}
+                  type="button"
+                  className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-xs font-black text-purple-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-purple-700 shrink-0" />
+                  <span>🔄 Revise Past Topics</span>
                 </button>
               </div>
             </div>
@@ -527,6 +572,15 @@ export function App() {
         onClose={() => setIsAskDoubtOpen(false)}
         graph={graph}
         studentName="Ananya"
+      />
+
+      {/* STUDENT REVISION & PAST TOPICS LIBRARY MODAL (STUDENT) */}
+      <StudentRevisionLibraryModal
+        isOpen={isRevisionLibraryOpen}
+        onClose={() => setIsRevisionLibraryOpen(false)}
+        activeGraphId={graph.id}
+        onSelectTopicToRevise={handleSelectTopicToRevise}
+        language={language}
       />
     </div>
   );

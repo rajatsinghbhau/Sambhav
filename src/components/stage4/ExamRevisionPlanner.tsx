@@ -1,11 +1,20 @@
 import React, { useState } from 'react';
 import { ExamRevisionPlan, ExamRevisionSession } from '../../types/stage4';
+import { ConceptGraph } from '../../types/conceptGraph';
+import { WATER_CYCLE_GRAPH } from '../../data/canonicalGraph';
 import { generateExamRevisionPlan } from '../../engine/stage4Engine';
 import { offlineStorage } from '../../utils/offlinePersistence';
-import { Check, Edit2, Plus, Trash2, Clock, Target, Save, Info } from 'lucide-react';
+import { PrintableExamStoryboardModal } from './PrintableExamStoryboardModal';
+import { Check, Edit2, Plus, Trash2, Clock, Target, Save, Info, Printer } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects';
 
-export const ExamRevisionPlanner: React.FC = () => {
+interface ExamRevisionPlannerProps {
+  graph?: ConceptGraph;
+}
+
+export const ExamRevisionPlanner: React.FC<ExamRevisionPlannerProps> = ({
+  graph = WATER_CYCLE_GRAPH
+}) => {
   const [examDate, setExamDate] = useState<string>('2026-12-15');
   const [plan, setPlan] = useState<ExamRevisionPlan>(() => {
     return offlineStorage.loadExamPlan() || generateExamRevisionPlan('2026-12-15');
@@ -16,6 +25,7 @@ export const ExamRevisionPlanner: React.FC = () => {
   const [editedTopic, setEditedTopic] = useState<string>('');
   const [editedDesc, setEditedDesc] = useState<string>('');
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
+  const [showPrintableSheet, setShowPrintableSheet] = useState<boolean>(false);
 
   const handleDateChange = (newDate: string) => {
     sounds.playPop();
@@ -119,18 +129,32 @@ export const ExamRevisionPlanner: React.FC = () => {
           </p>
         </div>
 
-        {/* Exam Date Picker */}
-        <div className="flex items-center gap-2 self-start sm:self-center">
-          <label htmlFor="exam-date-picker" className="text-xs font-bold text-slate-600">
-            Exam Target:
-          </label>
-          <input
-            id="exam-date-picker"
-            type="date"
-            value={examDate}
-            onChange={e => handleDateChange(e.target.value)}
-            className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          />
+        {/* Exam Controls: Date Picker & Printable Storyboard Button */}
+        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-center">
+          <button
+            onClick={() => {
+              sounds.playSuccessChime();
+              setShowPrintableSheet(true);
+            }}
+            type="button"
+            className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-md shadow-indigo-600/20 active:scale-95 transition-all"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>🖨️ View 1-Page Revision Storyboard</span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            <label htmlFor="exam-date-picker" className="text-xs font-bold text-slate-600">
+              Exam:
+            </label>
+            <input
+              id="exam-date-picker"
+              type="date"
+              value={examDate}
+              onChange={e => handleDateChange(e.target.value)}
+              className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+          </div>
         </div>
       </div>
 
@@ -267,6 +291,16 @@ export const ExamRevisionPlanner: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* 1-Page Printable Visual Revision Storyboard Modal */}
+      {showPrintableSheet && (
+        <PrintableExamStoryboardModal
+          isOpen={showPrintableSheet}
+          onClose={() => setShowPrintableSheet(false)}
+          graph={graph}
+          plan={plan}
+        />
+      )}
     </div>
   );
 };

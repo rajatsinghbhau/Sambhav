@@ -88,19 +88,19 @@ export const ConceptGraphScreen: React.FC<ConceptGraphScreenProps> = ({
                 }}
                 type="button"
                 aria-label={`Select concept: ${primaryLabel}`}
-                className={`min-h-[110px] w-24 sm:w-28 p-3.5 rounded-2xl border-2 flex flex-col items-center justify-between text-center transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 btn-tactile ${
+                className={`min-h-[116px] min-w-[96px] sm:min-w-[112px] w-auto max-w-[130px] p-2.5 sm:p-3 rounded-2xl border-2 flex flex-col items-center justify-between text-center transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 btn-tactile ${
                   isSelected
                     ? 'border-blue-600 bg-blue-50 shadow-md ring-4 ring-blue-100 scale-105'
                     : 'border-slate-200 bg-slate-50/70 hover:bg-slate-100'
                 }`}
               >
-                <span className="text-3xl my-1.5" aria-hidden="true">
+                <span className="text-3xl my-1.5 shrink-0" aria-hidden="true">
                   {node.symbol}
                 </span>
-                <span className="text-xs font-black text-slate-900 leading-tight">
+                <span className="text-xs font-black text-slate-900 leading-tight break-words w-full">
                   {primaryLabel}
                 </span>
-                <span className="text-[11px] text-blue-700 font-bold mt-0.5">
+                <span className="text-[10px] sm:text-[11px] text-blue-700 font-bold mt-0.5 leading-tight break-words w-full">
                   {secondaryLabel}
                 </span>
               </button>

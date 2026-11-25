@@ -1,6 +1,6 @@
 import { ConceptGraph, GraphEvidenceEvaluation } from '../types/conceptGraph';
 import { FALLBACK_GRAPH } from '../data/canonicalGraph';
-import { TeachingPlan, Doubt, RevisionItem, ExamRevisionPlan, StudentActivityLog } from '../types/stage4';
+import { TeachingPlan, Doubt, RevisionItem, ExamRevisionPlan, StudentActivityLog, LearnedTopic } from '../types/stage4';
 
 const STORAGE_KEYS = {
   GRAPH: 'sambhav_approved_graph',
@@ -15,6 +15,7 @@ const STORAGE_KEYS = {
   EXAM_PLAN: 'sambhav_exam_plan',
   STUDENT_ACTIVITIES: 'sambhav_student_activities',
   CURRENT_ROLE: 'sambhav_current_role',
+  LEARNED_TOPICS: 'sambhav_learned_topics',
 };
 
 export interface OfflineCacheState {
@@ -270,6 +271,106 @@ export const offlineStorage = {
     ];
   },
 
+  saveLearnedTopics(topics: LearnedTopic[]) {
+    try {
+      safeSetItem(STORAGE_KEYS.LEARNED_TOPICS, JSON.stringify(topics));
+    } catch (e) {
+      console.warn('Failed to save learned topics offline:', e);
+    }
+  },
+
+  loadLearnedTopics(): LearnedTopic[] {
+    try {
+      const raw = safeGetItem(STORAGE_KEYS.LEARNED_TOPICS);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return [
+      {
+        id: 'water-cycle',
+        title: 'The Water Cycle',
+        titleKn: 'ಜಲಚಕ್ರ',
+        subtitle: 'Sun, heat, evaporation, condensation, and rain',
+        symbol: '💧',
+        graph: FALLBACK_GRAPH,
+        learnedDate: 'Today',
+        status: 'revision_due',
+        revisionsCompleted: 1,
+        lastRevisedAt: 'Today'
+      },
+      {
+        id: 'plant-growth',
+        title: 'How Plants Grow',
+        titleKn: 'ಸಸ್ಯಗಳ ಬೆಳವಣಿಗೆ',
+        subtitle: 'Seed, soil, water, sunlight, and green leaves',
+        symbol: '🌱',
+        graph: {
+          id: 'plant-growth',
+          title: 'How Plants Grow',
+          subtitle: 'Plant Biology Lesson',
+          nodes: [
+            { id: 'seed', label: 'Seed', kannadaLabel: 'ಬೀಜ', symbol: '🌰', explanation: 'A seed rests in fertile soil waiting for water and warmth.' },
+            { id: 'water', label: 'Water', kannadaLabel: 'ನೀರು', symbol: '💧', explanation: 'Moisture softens the seed coat so roots can grow downward.' },
+            { id: 'roots', label: 'Roots', kannadaLabel: 'ಬೇರುಗಳು', symbol: '🌿', explanation: 'Roots drink minerals and anchor the young plant firmly.' },
+            { id: 'sunlight', label: 'Sunlight', kannadaLabel: 'ಸೂರ್ಯನ ಬೆಳಕು', symbol: '☀️', explanation: 'Warm sunlight provides energy for the plant to make food.' },
+            { id: 'leaves', label: 'Leaves', kannadaLabel: 'ಎಲೆಗಳು', symbol: '🍃', explanation: 'Green leaves make sugar and release clean oxygen.' },
+            { id: 'flower', label: 'Flower', kannadaLabel: 'ಹೂವು', symbol: '🌸', explanation: 'Beautiful flowers bloom and create new seeds.' }
+          ],
+          edges: [
+            { from: 'seed', to: 'water', relation: 'absorbs' },
+            { from: 'water', to: 'roots', relation: 'grows' },
+            { from: 'roots', to: 'sunlight', relation: 'reaches' },
+            { from: 'sunlight', to: 'leaves', relation: 'fuels' },
+            { from: 'leaves', to: 'flower', relation: 'blooms' }
+          ]
+        },
+        learnedDate: '3 days ago',
+        status: 'mastered',
+        revisionsCompleted: 2,
+        lastRevisedAt: 'Yesterday'
+      },
+      {
+        id: 'sun-earth',
+        title: 'Sun, Earth & Seasons',
+        titleKn: 'ಸೂರ್ಯ ಮತ್ತು ಭೂಮಿ',
+        subtitle: 'Day, night, sunlight, warmth, and seasons',
+        symbol: '☀️',
+        graph: {
+          id: 'sun-earth',
+          title: 'Sun, Earth & Seasons',
+          subtitle: 'Earth & Space Science',
+          nodes: [
+            { id: 'sun', label: 'Sun', kannadaLabel: 'ಸೂರ್ಯ', symbol: '☀️', explanation: 'The Sun is a glowing star at the center of our solar system.' },
+            { id: 'earth', label: 'Earth', kannadaLabel: 'ಭೂಮಿ', symbol: '🌍', explanation: 'Earth is our home planet revolving around the sun.' },
+            { id: 'spin', label: 'Rotation', kannadaLabel: 'ತಿರುಗುವಿಕೆ', symbol: '🔄', explanation: 'Earth spins once every 24 hours giving us day and night.' },
+            { id: 'daylight', label: 'Daylight', kannadaLabel: 'ಹಗಲು', symbol: '🌤️', explanation: 'The side facing the Sun enjoys bright daylight.' },
+            { id: 'night', label: 'Night', kannadaLabel: 'ರಾತ್ರಿ', symbol: '🌙', explanation: 'The side turned away enters quiet night.' }
+          ],
+          edges: [
+            { from: 'sun', to: 'earth', relation: 'illuminates' },
+            { from: 'earth', to: 'spin', relation: 'rotates' },
+            { from: 'spin', to: 'daylight', relation: 'creates' },
+            { from: 'daylight', to: 'night', relation: 'cycles to' }
+          ]
+        },
+        learnedDate: '1 week ago',
+        status: 'mastered',
+        revisionsCompleted: 3,
+        lastRevisedAt: '4 days ago'
+      }
+    ];
+  },
+
+  addOrUpdateLearnedTopic(topic: LearnedTopic) {
+    const list = this.loadLearnedTopics();
+    const existingIndex = list.findIndex(t => t.id === topic.id);
+    if (existingIndex >= 0) {
+      list[existingIndex] = { ...list[existingIndex], ...topic };
+    } else {
+      list.unshift(topic);
+    }
+    this.saveLearnedTopics(list);
+  },
+
   clear() {
     try {
       safeRemoveItem(STORAGE_KEYS.GRAPH);
@@ -283,6 +384,7 @@ export const offlineStorage = {
       safeRemoveItem(STORAGE_KEYS.REVISION_QUEUE);
       safeRemoveItem(STORAGE_KEYS.EXAM_PLAN);
       safeRemoveItem(STORAGE_KEYS.STUDENT_ACTIVITIES);
+      safeRemoveItem(STORAGE_KEYS.LEARNED_TOPICS);
     } catch {}
   }
 };

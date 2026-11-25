@@ -1,4 +1,4 @@
-import { TeachingActivity, SimplifiedExplanation, FictionalStudent } from '../types/stage4';
+import { TeachingActivity, SimplifiedExplanation, FictionalStudent, ExamRevisionCheckpoint } from '../types/stage4';
 
 /**
  * PART 3 — CURATED TEACHING ACTIVITY LIBRARY
@@ -213,3 +213,118 @@ export const DEMO_STUDENTS: FictionalStudent[] = [
     initialChain: ['sun', 'heat', 'water', 'evaporation', 'vapour', 'condensation']
   }
 ];
+
+/**
+ * PART 7 — CURATED MULTI-TIER REVISION CHECKPOINTS
+ * Offline deterministic checkpoints for quick recall, spaced retrieval, and exam review.
+ */
+export const REVISION_CHECKPOINTS: Record<string, ExamRevisionCheckpoint> = {
+  condensation: {
+    conceptId: 'condensation',
+    conceptLabel: 'Condensation',
+    memoryHook: 'Warm invisible vapour cools down and turns back into visible water drops (like outside a cold soda can).',
+    questions: [
+      {
+        id: 'q-cond-1',
+        type: 'visual_symbol',
+        prompt: 'Which picture card shows Condensation forming in the sky?',
+        options: ['☁️ Clouds forming', '☀️ Bright Sun', '💧 Puddle of water'],
+        correctIndex: 0,
+        explanation: 'Condensation happens when warm vapour cools high in the air to form clouds!'
+      },
+      {
+        id: 'q-cond-2',
+        type: 'real_life',
+        prompt: 'You take a cold bottle out of the fridge. Why do drops form on the outside?',
+        options: ['Water is leaking from inside the bottle', 'Invisible moisture in the warm room air touched the cold glass and cooled down', 'The bottle melted'],
+        correctIndex: 1,
+        explanation: 'Water in the air condensed into tiny drops when it touched the chilled cold surface.'
+      },
+      {
+        id: 'q-cond-3',
+        type: 'cause_effect',
+        prompt: 'What must happen to water vapour for it to condense into clouds or raindrops?',
+        options: ['It must get hotter and boil', 'It must cool down', 'It must be hidden under the soil'],
+        correctIndex: 1,
+        explanation: 'Cooling down causes spread-out vapour particles to come together into liquid water.'
+      }
+    ]
+  },
+  evaporation: {
+    conceptId: 'evaporation',
+    conceptLabel: 'Evaporation',
+    memoryHook: 'Liquid water absorbs heat and turns into invisible rising water vapour.',
+    questions: [
+      {
+        id: 'q-evap-1',
+        type: 'visual_symbol',
+        prompt: 'Which symbol shows liquid water rising up into the warm air?',
+        options: ['⬆️ Rising Vapour', '🌧️ Falling Rain', '❄️ Cold Ice'],
+        correctIndex: 0,
+        explanation: 'Evaporation is water rising as vapour when warmed by the sun.'
+      },
+      {
+        id: 'q-evap-2',
+        type: 'real_life',
+        prompt: 'After it rains, puddles on the sunny playground disappear. Where did the water go?',
+        options: ['Dogs drank it all', 'Heat from the sun evaporated the water into the air', 'It turned into sand'],
+        correctIndex: 1,
+        explanation: 'Sunlight warmed the puddle and turned it into invisible water vapour.'
+      },
+      {
+        id: 'q-evap-3',
+        type: 'cause_effect',
+        prompt: 'What energy source causes natural evaporation from lakes and oceans?',
+        options: ['Heat from the Sun', 'Wind blowing in circles', 'Cold nighttime moonlight'],
+        correctIndex: 0,
+        explanation: 'Solar heat provides thermal energy for water to evaporate.'
+      }
+    ]
+  },
+  vapour: {
+    conceptId: 'vapour',
+    conceptLabel: 'Water Vapour',
+    memoryHook: 'Invisible water gas floating in the air around us.',
+    questions: [
+      {
+        id: 'q-vap-1',
+        type: 'visual_symbol',
+        prompt: 'Water vapour is in what physical state of matter?',
+        options: ['Solid ice', 'Invisible gas in air', 'Hard stone'],
+        correctIndex: 1,
+        explanation: 'Water vapour is the gas phase of water floating in our atmosphere.'
+      },
+      {
+        id: 'q-vap-2',
+        type: 'cause_effect',
+        prompt: 'What happens to water vapour when it rises high into the colder sky?',
+        options: ['It stays hot forever', 'It cools down and condenses into cloud droplets', 'It vanishes permanently from the Earth'],
+        correctIndex: 1,
+        explanation: 'High in the atmosphere, low temperatures condense vapour into clouds.'
+      }
+    ]
+  },
+  rain: {
+    conceptId: 'rain',
+    conceptLabel: 'Rain (Precipitation)',
+    memoryHook: 'Cloud droplets become too heavy to float and gravity pulls them down to Earth.',
+    questions: [
+      {
+        id: 'q-rain-1',
+        type: 'cause_effect',
+        prompt: 'Why does rain fall from heavy clouds?',
+        options: ['Water droplets in clouds group together and become too heavy to stay floating', 'The clouds get angry', 'The sun pulls the water down'],
+        correctIndex: 0,
+        explanation: 'When condensed drops grow heavy, gravity pulls them down as precipitation!'
+      },
+      {
+        id: 'q-rain-2',
+        type: 'real_life',
+        prompt: 'Where does rain water go after it falls on hills and soil?',
+        options: ['It flows into streams, rivers, and replenishes groundwater', 'It leaves Earth into outer space', 'It disappears forever'],
+        correctIndex: 0,
+        explanation: 'Rainwater collects into bodies of water, continuing the continuous cycle.'
+      }
+    ]
+  }
+};

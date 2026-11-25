@@ -1,3 +1,5 @@
+import { ConceptGraph } from './conceptGraph';
+
 export type ActivityType =
   | 'Visual'
   | 'Hands-on'
@@ -116,4 +118,33 @@ export interface ExamRevisionPlan {
   examDate: string;
   totalDays: number;
   sessions: ExamRevisionSession[];
+}
+
+export interface LearnedTopic {
+  id: string;
+  title: string;
+  titleKn?: string;
+  subtitle: string;
+  symbol: string;
+  graph: ConceptGraph;
+  learnedDate: string;
+  status: 'mastered' | 'revision_due' | 'in_progress';
+  revisionsCompleted: number;
+  lastRevisedAt?: string;
+}
+
+export interface RevisionCheckpointQuestion {
+  id: string;
+  type: 'visual_symbol' | 'real_life' | 'cause_effect';
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export interface ExamRevisionCheckpoint {
+  conceptId: string;
+  conceptLabel: string;
+  memoryHook: string;
+  questions: RevisionCheckpointQuestion[];
 }

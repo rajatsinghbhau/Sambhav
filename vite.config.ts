@@ -2,7 +2,7 @@
 import { defineConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { handleGenerateLessonGraph } from './server/generateLessonGraph';
-import { handleGenerateActivities, handleGenerateExplanation } from './server/aiAssistant';
+import { handleGenerateActivities, handleGenerateExplanation, handleGenerateExamCheckpoint } from './server/aiAssistant';
 import fs from 'fs';
 import path from 'path';
 
@@ -34,6 +34,8 @@ function serverlessApiPlugin(): Plugin {
       handleGenerateActivities(req, res, apiKey);
     } else if (req.url === '/api/generate-simple-explanation') {
       handleGenerateExplanation(req, res, apiKey);
+    } else if (req.url === '/api/generate-exam-checkpoint') {
+      handleGenerateExamCheckpoint(req, res, apiKey);
     } else {
       next();
     }
@@ -52,6 +54,9 @@ function serverlessApiPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [react(), serverlessApiPlugin()],
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'lucide-react', 'clsx', 'tailwind-merge'],
+  },
   server: {
     host: true,
     allowedHosts: ['sambhav.nivixsa.com', '.nivixsa.com'],

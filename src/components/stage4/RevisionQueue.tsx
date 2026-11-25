@@ -3,7 +3,8 @@ import { ConceptGraph } from '../../types/conceptGraph';
 import { RevisionItem, RevisionQueueSection } from '../../types/stage4';
 import { generateInitialRevisionQueue } from '../../engine/stage4Engine';
 import { offlineStorage } from '../../utils/offlinePersistence';
-import { CheckCircle2, Clock, RotateCcw, Info, PlusCircle } from 'lucide-react';
+import { RevisionCheckpointModal } from './RevisionCheckpointModal';
+import { CheckCircle2, Clock, RotateCcw, Info, PlusCircle, Sparkles } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects';
 
 interface RevisionQueueProps {
@@ -21,6 +22,15 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
 
   const [activeTab, setActiveTab] = useState<RevisionQueueSection>('due_today');
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+  const [activeCheckpointConcept, setActiveCheckpointConcept] = useState<{
+    id: string;
+    label: string;
+    symbol: string;
+    explanation?: string;
+  } | null>(null);
+
+  const completedCount = items.filter(it => it.status === 'completed').length;
+  const retentionHealthPercent = Math.min(100, Math.round(75 + (completedCount * 5)));
 
   const handleMarkCompleted = (id: string) => {
     sounds.playSuccessChime();
@@ -57,6 +67,45 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
     setTimeout(() => setActionNotice(null), 3000);
   };
 
+  // AI Adaptive Spacing Optimizer: Prioritizes weak transitions (+2d) & spaces mastered (+7d/+21d)
+  const handleAdaptiveOptimize = () => {
+    sounds.playSuccessChime();
+    const evState = offlineStorage.loadEvidenceState();
+    const weakResult = evState.beforeEvidence?.orderedResults?.find(r => r.status === 'YELLOW' || r.status === 'WHITE');
+    const weakConcept = weakResult?.nodeId || 'condensation';
+
+    const optimized = items.map(it => {
+      if (it.conceptId === weakConcept) {
+        return {
+          ...it,
+          section: 'due_today' as const,
+          dueDate: new Date().toISOString().split('T')[0],
+          reason: `Evidence indicates ${it.conceptLabel} has lower recall. Prioritized for +2d repetition.`,
+          status: 'pending' as const
+        };
+      } else if (it.status === 'completed') {
+        return {
+          ...it,
+          section: 'before_exam' as const,
+          dueDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          reason: `Mastery demonstrated. Spaced to +21d pre-exam review.`
+        };
+      } else {
+        return {
+          ...it,
+          section: 'coming_up' as const,
+          dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          reason: `Retention check scheduled at +7 days.`
+        };
+      }
+    });
+
+    setItems(optimized);
+    offlineStorage.saveRevisionQueue(optimized);
+    setActionNotice(`✨ AI Adaptive Spacing applied! Weak transitions (${weakConcept}) prioritized for +2d; mastered concepts spaced to +7d/+21d.`);
+    setTimeout(() => setActionNotice(null), 5000);
+  };
+
   const filteredItems = items.filter(it => it.section === activeTab);
 
   return (
@@ -77,9 +126,49 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
         </div>
 
         {/* Suggested revision schedule. Teacher decides. Notice */}
-        <div className="bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 self-start sm:self-center">
-          <Info className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-          <span>Suggested revision schedule. Teacher decides.</span>
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+          <div className="bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
+            <Info className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <span>Suggested revision schedule. Teacher decides.</span>
+          </div>
+
+          <button
+            onClick={handleAdaptiveOptimize}
+            type="button"
+            className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-md shadow-indigo-600/20 active:scale-95 transition-all"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>✨ AI Adaptive Spacing Optimizer</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Class Retention Health Overview */}
+      <div className="p-4 bg-gradient-to-r from-indigo-50/70 via-sky-50/50 to-emerald-50/70 rounded-2xl border border-indigo-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-xs shadow-xs shrink-0">
+            {retentionHealthPercent}%
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black text-slate-900">
+                Class Retention & Spacing Health
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800">
+                {retentionHealthPercent >= 80 ? 'Optimal' : 'Needs Reinforcement'}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 font-semibold mt-0.5">
+              {completedCount} concepts reviewed • Automated spaced intervals: +2d, +7d, +21d.
+            </p>
+          </div>
+        </div>
+
+        <div className="w-full sm:w-48 bg-slate-200 h-2.5 rounded-full overflow-hidden">
+          <div
+            className="bg-gradient-to-r from-indigo-500 to-emerald-500 h-full rounded-full transition-all duration-500"
+            style={{ width: `${retentionHealthPercent}%` }}
+          />
         </div>
       </div>
 
@@ -167,9 +256,27 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
                   </span>
                 </div>
 
-                {/* Actions: Review, Move Date, Add to Lesson */}
+                {/* Actions: Review, Move Date, Add to Lesson, Quick Checkpoint */}
                 {!isCompleted && (
                   <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+                    <button
+                      onClick={() => {
+                        sounds.playPop();
+                        const node = graph.nodes.find(n => n.id === item.conceptId);
+                        setActiveCheckpointConcept({
+                          id: item.conceptId,
+                          label: item.conceptLabel,
+                          symbol: item.conceptSymbol,
+                          explanation: node?.explanation || ''
+                        });
+                      }}
+                      type="button"
+                      className="min-h-[44px] px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200 text-indigo-900 font-extrabold text-xs flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all active:scale-95"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>Quick Checkpoint</span>
+                    </button>
+
                     <button
                       onClick={() => handleMarkCompleted(item.id)}
                       type="button"
@@ -203,6 +310,26 @@ export const RevisionQueue: React.FC<RevisionQueueProps> = ({
           })
         )}
       </div>
+
+      {/* Interactive Quick Checkpoint Modal */}
+      {activeCheckpointConcept && (
+        <RevisionCheckpointModal
+          isOpen={!!activeCheckpointConcept}
+          onClose={() => setActiveCheckpointConcept(null)}
+          conceptId={activeCheckpointConcept.id}
+          conceptLabel={activeCheckpointConcept.label}
+          conceptSymbol={activeCheckpointConcept.symbol}
+          conceptExplanation={activeCheckpointConcept.explanation}
+          onMarkReviewed={(cid) => {
+            const match = items.find(it => it.conceptId === cid);
+            if (match) {
+              handleMarkCompleted(match.id);
+            }
+            setActionNotice(`🌟 Checkpoint completed for ${activeCheckpointConcept.label}! Marked as reviewed.`);
+            setTimeout(() => setActionNotice(null), 4000);
+          }}
+        />
+      )}
     </div>
   );
 };

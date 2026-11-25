@@ -1,4 +1,4 @@
-import { TeachingActivity } from '../types/stage4';
+import { TeachingActivity, ExamRevisionCheckpoint } from '../types/stage4';
 
 export interface AiActivityResponse {
   success: boolean;
@@ -83,6 +83,46 @@ export async function generateAiExplanation(
     }
   } catch (e) {
     console.warn('AI simple explanation offline or timed out; using curated explanation:', e);
+  }
+  return null;
+}
+
+/**
+ * Calls serverless endpoint to generate 3 multi-tier inclusive exam checkpoint questions with Gemini 2.5 Flash.
+ * Falls back safely with zero crashes if offline or API key missing.
+ */
+export async function generateAiExamCheckpoint(
+  conceptLabel: string,
+  conceptExplanation: string
+): Promise<ExamRevisionCheckpoint | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 9000);
+
+    const res = await fetch('/api/generate-exam-checkpoint', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conceptLabel, conceptExplanation }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const data = await res.json();
+    if (data.success && Array.isArray(data.questions) && data.questions.length > 0) {
+      return {
+        conceptId: data.conceptId || conceptLabel.toLowerCase().replace(/\s+/g, '-'),
+        conceptLabel: data.conceptLabel || conceptLabel,
+        memoryHook: data.memoryHook || 'Keep revising this key concept!',
+        questions: data.questions
+      };
+    }
+  } catch (e) {
+    console.warn('AI exam checkpoint offline or timed out; using curated checkpoint:', e);
   }
   return null;
 }

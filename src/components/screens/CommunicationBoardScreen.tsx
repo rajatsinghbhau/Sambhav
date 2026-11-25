@@ -458,20 +458,20 @@ export const CommunicationBoardScreen: React.FC<CommunicationBoardScreenProps> =
                   })
                 }
                 type="button"
-                className="btn-3d-concept min-h-[118px] min-w-[48px] p-4 flex flex-col items-center justify-center text-center cursor-pointer group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300"
+                className="btn-3d-concept min-h-[124px] h-auto min-w-[48px] p-3 sm:p-4 flex flex-col items-center justify-center text-center cursor-pointer group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300"
                 aria-label={`Select and speak concept: ${primaryLabel}`}
               >
                 <span
-                  className="text-4xl group-hover:scale-120 transition-transform mb-1.5 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.18)]"
+                  className="text-3xl sm:text-4xl group-hover:scale-115 transition-transform mb-1.5 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.18)] shrink-0"
                   aria-hidden="true"
                 >
                   {item.symbol}
                 </span>
-                <span className="text-sm sm:text-base font-black text-slate-900 tracking-tight leading-tight">
+                <span className="text-xs sm:text-base font-black text-slate-900 tracking-tight leading-snug break-words max-w-full">
                   {primaryLabel}
                 </span>
                 {secondaryLabel && (
-                  <span className="text-[11px] text-indigo-700 font-extrabold mt-0.5 tracking-normal">
+                  <span className="text-[10px] sm:text-[11px] text-indigo-700 font-extrabold mt-0.5 tracking-normal leading-tight break-words max-w-full">
                     {secondaryLabel}
                   </span>
                 )}
@@ -672,16 +672,16 @@ export const CommunicationBoardScreen: React.FC<CommunicationBoardScreenProps> =
                 } ${isActive ? 'ring-4 ring-indigo-500 scale-[1.02]' : ''}`}
                 aria-label={`Classroom Helper: ${displayText} (${roleSubtext})`}
               >
-                <div className="flex items-center gap-3.5">
+                <div className="flex items-center gap-3.5 min-w-0">
                   <span
                     className="text-3xl shrink-0 group-hover:scale-115 transition-transform filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.15)]"
                     aria-hidden="true"
                   >
                     {phrase.symbol}
                   </span>
-                  <div className="flex flex-col">
-                    <span className="leading-snug font-extrabold">{displayText}</span>
-                    <span className="text-[11px] opacity-80 font-bold mt-0.5">
+                  <div className="flex flex-col min-w-0">
+                    <span className="leading-snug font-extrabold break-words">{displayText}</span>
+                    <span className="text-[11px] opacity-80 font-bold mt-0.5 break-words">
                       {roleSubtext}
                     </span>
                   </div>

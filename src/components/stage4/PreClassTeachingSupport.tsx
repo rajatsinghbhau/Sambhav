@@ -125,7 +125,7 @@ export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = (
           <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
             Select Curriculum Concept:
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-max">
             {graph.nodes.map(node => {
               const isSelected = node.id === selectedConceptId;
               return (
@@ -208,7 +208,7 @@ export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = (
               >
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-max">
                       <span className="text-2xl p-2 bg-white rounded-xl shadow-2xs">
                         {getTypeIcon(act.type)}
                       </span>

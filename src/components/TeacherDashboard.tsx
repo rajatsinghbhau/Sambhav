@@ -179,7 +179,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 setActiveTab(tab.id as TeacherDashboardTab);
               }}
               type="button"
-              className={`min-h-[50px] flex-1 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap btn-tactile ${
+              className={`min-h-[50px] shrink-0 min-w-fit px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap btn-tactile ${
                 isActive
                   ? 'bg-white text-indigo-700 shadow-sm border border-slate-200/80 ring-2 ring-indigo-200'
                   : 'text-slate-600 hover:text-slate-900'
@@ -331,7 +331,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       {activeTab === 'revision' && (
         <div className="space-y-6">
           <RevisionQueue graph={graph} />
-          <ExamRevisionPlanner />
+          <ExamRevisionPlanner graph={graph} />
         </div>
       )}
     </div>
