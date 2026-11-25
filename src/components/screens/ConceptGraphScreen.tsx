@@ -51,11 +51,11 @@ export const ConceptGraphScreen: React.FC<ConceptGraphScreenProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-3xl border-2 border-slate-200/80 shadow-md p-6 sm:p-8 space-y-6">
+    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-6">
       {/* Teacher Approved Badge */}
       <div className="flex justify-center">
-        <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-emerald-600 text-white font-extrabold text-sm shadow-md shadow-emerald-600/20">
-          <CheckCircle2 className="w-5 h-5 fill-white text-emerald-600 shrink-0" />
+        <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-extrabold text-xs shadow-2xs">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{language === 'KN' ? 'ಶಿಕ್ಷಕರು ಅನುಮೋದಿಸಿದ ಪಾಠದ ನಕ್ಷೆ' : 'Teacher Approved Lesson Map'}</span>
         </div>
       </div>
@@ -66,16 +66,16 @@ export const ConceptGraphScreen: React.FC<ConceptGraphScreenProps> = ({
             ? (graph.titleKn ? `${graph.titleKn} (${graph.title})` : graph.title)
             : `${graph.title} Map`}
         </h2>
-        <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-0.5">
+        <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-1">
           {graph.subtitle || (language === 'KN'
             ? 'ಪ್ರಕೃತಿಯಲ್ಲಿ ಈ ಪರಿಕಲ್ಪನೆ ಹೇಗೆ ಚಲಿಸುತ್ತದೆ ಎಂಬುದನ್ನು ತೋರಿಸುವ ಚಿತ್ರಗಳು'
-            : 'Step-by-step pictures showing how concepts connect')}
+            : 'Step-by-step concepts showing how nature connects')}
         </p>
       </div>
 
       {/* 7 Pill Node Cards in a row */}
-      <div className="overflow-x-auto pb-3 pt-1">
-        <div className="flex items-center justify-center gap-3 min-w-max px-2">
+      <div className="overflow-x-auto pb-3 pt-1 scrollbar-none">
+        <div className="flex items-center justify-center gap-2.5 min-w-max px-2">
           {graph.nodes.map((node) => {
             const isSelected = selectedNode.id === node.id;
             const primaryLabel = language === 'KN' ? node.kannadaLabel : node.label;
@@ -90,19 +90,19 @@ export const ConceptGraphScreen: React.FC<ConceptGraphScreenProps> = ({
                 }}
                 type="button"
                 aria-label={`Select concept: ${primaryLabel}`}
-                className={`min-h-[116px] min-w-[96px] sm:min-w-[112px] w-auto max-w-[130px] p-2.5 sm:p-3 rounded-2xl border-2 flex flex-col items-center justify-between text-center transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 btn-tactile ${
+                className={`min-h-[110px] min-w-[96px] sm:min-w-[110px] w-auto max-w-[130px] p-2.5 sm:p-3 rounded-2xl border flex flex-col items-center justify-between text-center transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                   isSelected
-                    ? 'border-blue-600 bg-blue-50 shadow-md ring-4 ring-blue-100 scale-105'
-                    : 'border-slate-200 bg-slate-50/70 hover:bg-slate-100'
+                    ? 'border-indigo-600 bg-indigo-50/80 shadow-xs ring-2 ring-indigo-200 scale-102'
+                    : 'border-slate-200/90 bg-slate-50/70 hover:bg-slate-100 hover:border-slate-300'
                 }`}
               >
-                <span className="text-3xl my-1.5 shrink-0" aria-hidden="true">
+                <span className="text-3xl my-1 shrink-0" aria-hidden="true">
                   {node.symbol}
                 </span>
                 <span className="text-xs font-black text-slate-900 leading-tight break-words w-full">
                   {primaryLabel}
                 </span>
-                <span className="text-[10px] sm:text-[11px] text-blue-700 font-bold mt-0.5 leading-tight break-words w-full">
+                <span className="text-[10px] text-indigo-700 font-bold mt-0.5 leading-tight break-words w-full">
                   {secondaryLabel}
                 </span>
               </button>
@@ -112,30 +112,30 @@ export const ConceptGraphScreen: React.FC<ConceptGraphScreenProps> = ({
       </div>
 
       {/* Focus Highlight Card with Cloud/Nature visual block */}
-      <div className="bg-gradient-to-r from-blue-50/90 via-sky-50 to-indigo-50/70 border-2 border-blue-200 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+      <div className="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-6 sm:p-7 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xs">
         <div className="flex items-start gap-4">
-          <div className="text-6xl p-4 bg-white rounded-2xl border-2 border-blue-200 shadow-xs shrink-0 animate-gentle">
+          <div className="text-5xl p-3.5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs shrink-0">
             {selectedNode.symbol}
           </div>
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
-              <h3 className="text-2xl sm:text-3xl font-black text-slate-900">
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900">
                 {language === 'KN' ? selectedNode.kannadaLabel : selectedNode.label}
               </h3>
               <button
                 onClick={() => speakNode(selectedNode)}
                 type="button"
-                className="min-h-[48px] min-w-[48px] p-2.5 rounded-xl bg-white border border-blue-200 text-blue-600 hover:bg-blue-100 cursor-pointer shadow-2xs flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="min-h-[40px] min-w-[40px] p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 cursor-pointer shadow-2xs flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors"
                 aria-label={`Listen to ${selectedNode.label}`}
                 title="Listen to explanation"
               >
-                <Volume2 className="w-5 h-5" />
+                <Volume2 className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-sm font-bold text-blue-800">
+            <p className="text-xs font-bold text-indigo-700">
               {language === 'KN' ? selectedNode.label : selectedNode.kannadaLabel}
             </p>
-            <p className="text-sm sm:text-base text-slate-700 leading-relaxed pt-2 max-w-lg font-medium">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pt-1 max-w-lg font-medium">
               “{selectedNode.explanation}”
             </p>
             {speechError && (
@@ -147,12 +147,12 @@ export const ConceptGraphScreen: React.FC<ConceptGraphScreenProps> = ({
         </div>
 
         {/* Visual Nature Photo/Graphic Box */}
-        <div className="w-full md:w-60 h-40 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-500 via-indigo-600 to-sky-600 flex flex-col items-center justify-center text-white p-4 shadow-md relative">
-          <span className="text-5xl filter drop-shadow">☁️🌧️</span>
-          <span className="text-xs font-black uppercase tracking-widest text-blue-100 mt-2">
+        <div className="w-full md:w-56 h-36 rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-800 flex flex-col items-center justify-center text-white p-4 shadow-sm relative shrink-0">
+          <span className="text-4xl filter drop-shadow">☁️🌧️</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-indigo-200 mt-2">
             Classroom Anchor
           </span>
-          <span className="text-xs font-bold text-center text-white/95">
+          <span className="text-xs font-bold text-center text-white/95 mt-0.5">
             {language === 'KN' ? selectedNode.kannadaLabel : selectedNode.label} in Nature
           </span>
         </div>
@@ -167,7 +167,7 @@ export const ConceptGraphScreen: React.FC<ConceptGraphScreenProps> = ({
           }}
           type="button"
           aria-label="Go back"
-          className="min-h-[48px] px-6 py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-100 flex items-center gap-2 cursor-pointer btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="min-h-[44px] px-5 py-2 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs sm:text-sm hover:bg-slate-100 flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{language === 'KN' ? 'ಹಿಂದೆ (Back)' : 'Back'}</span>
@@ -180,9 +180,9 @@ export const ConceptGraphScreen: React.FC<ConceptGraphScreenProps> = ({
           }}
           type="button"
           aria-label="Proceed to communication board"
-          className="min-h-[48px] px-7 py-2.5 rounded-xl bg-blue-600 text-white font-black text-sm hover:bg-blue-700 flex items-center gap-2 cursor-pointer shadow-md shadow-blue-600/25 btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="min-h-[44px] px-6 py-2 rounded-xl bg-indigo-600 text-white font-extrabold text-xs sm:text-sm hover:bg-indigo-700 flex items-center gap-2 cursor-pointer shadow-sm shadow-indigo-600/20 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
-          <span>{language === 'KN' ? 'ಮುಂದೆ: ಸಂವಹನ ಮಂಡಳಿ' : 'Next: Communication'}</span>
+          <span>{language === 'KN' ? 'ಮುಂದೆ: ವಿಜ್ಞಾನ ಲ್ಯಾಬ್' : 'Next: Science Sandbox'}</span>
           <ArrowRight className="w-4 h-4 stroke-[3]" />
         </button>
       </div>

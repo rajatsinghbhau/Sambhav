@@ -301,8 +301,11 @@ export const ScienceSandboxScreen: React.FC<ScienceSandboxScreenProps> = ({
     if (nextIdx < aiSimulation.steps.length) {
       handleSelectAiStep(aiSimulation.steps[nextIdx], nextIdx);
     } else {
-      // Reached the end, celebrate chime only
+      // Reached the end: celebrate and advance to Teach-Back
       sounds.playSuccessChime();
+      if (onNext) {
+        onNext();
+      }
     }
   };
 
@@ -765,6 +768,37 @@ export const ScienceSandboxScreen: React.FC<ScienceSandboxScreenProps> = ({
             </div>
           </div>
 
+          {/* Celebration Callout when completing the last step */}
+          {currentAiStepIndex === aiSimulation.steps.length - 1 && (
+            <div className="z-10 p-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 text-white rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md animate-in fade-in">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">🎉</span>
+                <div>
+                  <span className="text-xs sm:text-sm font-black block">
+                    {language === 'KN' ? 'ಪ್ರಯೋಗ ಮುಕ್ತಾಯವಾಯಿತು! ಮುಂದಿನ ಹಂತ:' : 'Experiment Completed! What’s Next?'}
+                  </span>
+                  <span className="text-[11px] text-emerald-100 font-bold">
+                    {language === 'KN'
+                      ? 'ಕಲಿತದ್ದನ್ನು ದೃಢೀಕರಿಸಲು "ಕಥೆ ಹೇಳಿ (Teach-Back)" ಗೆ ಹೋಗಿ!'
+                      : 'Advance to "Tell the Story (Teach-Back)" to arrange what happened!'}
+                  </span>
+                </div>
+              </div>
+              {onNext && (
+                <button
+                  onClick={() => {
+                    sounds.playSuccessChime();
+                    onNext();
+                  }}
+                  type="button"
+                  className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-xl text-xs font-black shadow-xs cursor-pointer shrink-0 self-end sm:self-auto"
+                >
+                  {language === 'KN' ? 'ಮುಂದೆ ಹೋಗಿ →' : 'Go to Teach-Back →'}
+                </button>
+              )}
+            </div>
+          )}
+
           {/* IN-SIMULATION STEP NAVIGATION (Previous Step / Next Step Buttons) */}
           <div className="flex items-center justify-between gap-3 pt-2 border-t border-purple-200/60 z-10">
             <button
@@ -802,7 +836,7 @@ export const ScienceSandboxScreen: React.FC<ScienceSandboxScreenProps> = ({
               <span>
                 {currentAiStepIndex < aiSimulation.steps.length - 1
                   ? (language === 'KN' ? 'ಮುಂದಿನ ಹಂತ' : 'Next Step')
-                  : (language === 'KN' ? 'ಪೂರ್ಣಗೊಳಿಸಿ!' : 'Complete!')}
+                  : (language === 'KN' ? 'ಪೂರ್ಣಗೊಳಿಸಿ! → ಕಥೆ ಹೇಳಿ' : 'Complete! → Tell the Story')}
               </span>
               <ChevronRight className="w-4 h-4 stroke-[3]" />
             </button>

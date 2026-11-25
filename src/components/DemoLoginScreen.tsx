@@ -40,18 +40,18 @@ export const DemoLoginScreen: React.FC<DemoLoginScreenProps> = ({
               sounds.playSuccessChime();
               onSelectRole('student');
             }}
-            className="group relative bg-white hover:bg-gradient-to-b hover:from-white hover:to-indigo-50/50 rounded-3xl border-2 border-slate-200 hover:border-indigo-400 p-8 shadow-sm hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between space-y-6 active:scale-98"
+            className="group relative bg-white hover:bg-slate-50/50 rounded-2xl border border-slate-200/90 hover:border-indigo-400 p-6 sm:p-7 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-6 active:scale-[0.99]"
           >
             <div className="space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-3xl shadow-xs group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-3xl shadow-2xs group-hover:scale-105 transition-transform">
                 👧
               </div>
 
               <div>
-                <span className="text-[11px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+                <span className="text-[10px] font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">
                   Student Persona (Ananya)
                 </span>
-                <h3 className="text-2xl font-black text-slate-900 mt-2">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-2">
                   Student Dashboard
                 </h3>
                 <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">
@@ -60,7 +60,7 @@ export const DemoLoginScreen: React.FC<DemoLoginScreenProps> = ({
               </div>
 
               {/* Student Features List */}
-              <div className="space-y-2 pt-2 border-t border-slate-100 text-xs text-slate-700 font-semibold">
+              <div className="space-y-2 pt-3 border-t border-slate-100 text-xs text-slate-700 font-semibold">
                 <div className="flex items-center gap-2">
                   <span className="text-indigo-600">💬</span>
                   <span>Communication Board with Audio Speech</span>
@@ -82,7 +82,7 @@ export const DemoLoginScreen: React.FC<DemoLoginScreenProps> = ({
 
             <button
               type="button"
-              className="w-full min-h-[50px] rounded-2xl bg-indigo-600 group-hover:bg-indigo-700 text-white font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-indigo-600/25 transition-all"
+              className="w-full min-h-[46px] rounded-xl bg-indigo-600 group-hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm shadow-indigo-600/20 transition-all cursor-pointer"
             >
               <span>Login as Student (Ananya)</span>
               <ArrowRight className="w-4 h-4" />
@@ -95,18 +95,18 @@ export const DemoLoginScreen: React.FC<DemoLoginScreenProps> = ({
               sounds.playSuccessChime();
               onSelectRole('teacher');
             }}
-            className="group relative bg-white hover:bg-gradient-to-b hover:from-white hover:to-amber-50/50 rounded-3xl border-2 border-slate-200 hover:border-amber-400 p-8 shadow-sm hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between space-y-6 active:scale-98"
+            className="group relative bg-white hover:bg-slate-50/50 rounded-2xl border border-slate-200/90 hover:border-amber-400 p-6 sm:p-7 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-6 active:scale-[0.99]"
           >
             <div className="space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-3xl shadow-xs group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 text-amber-700 flex items-center justify-center text-3xl shadow-2xs group-hover:scale-105 transition-transform">
                 🧑‍🏫
               </div>
 
               <div>
-                <span className="text-[11px] font-black uppercase tracking-wider text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
                   Educator Persona
                 </span>
-                <h3 className="text-2xl font-black text-slate-900 mt-2">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-2">
                   Teacher Intelligence
                 </h3>
                 <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">
@@ -115,7 +115,7 @@ export const DemoLoginScreen: React.FC<DemoLoginScreenProps> = ({
               </div>
 
               {/* Teacher Features List */}
-              <div className="space-y-2 pt-2 border-t border-slate-100 text-xs text-slate-700 font-semibold">
+              <div className="space-y-2 pt-3 border-t border-slate-100 text-xs text-slate-700 font-semibold">
                 <div className="flex items-center gap-2">
                   <span className="text-amber-600">💡</span>
                   <span>Pre-Class Teaching Suggestions (Hands-on, Visual, Movement)</span>
@@ -137,7 +137,7 @@ export const DemoLoginScreen: React.FC<DemoLoginScreenProps> = ({
 
             <button
               type="button"
-              className="w-full min-h-[50px] rounded-2xl bg-amber-500 group-hover:bg-amber-600 text-amber-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-amber-500/25 transition-all"
+              className="w-full min-h-[46px] rounded-xl bg-amber-500 group-hover:bg-amber-600 text-amber-950 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm shadow-amber-500/20 transition-all cursor-pointer"
             >
               <span>Login as Teacher (Educator)</span>
               <ArrowRight className="w-4 h-4" />

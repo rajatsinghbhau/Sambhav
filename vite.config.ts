@@ -32,11 +32,11 @@ function serverlessApiPlugin(): Plugin {
     if (req.url === '/api/generate-lesson-graph') {
       handleGenerateLessonGraph(req, res, geminiApiKey);
     } else if (req.url === '/api/generate-activities') {
-      handleGenerateActivities(req, res, geminiApiKey);
+      handleGenerateActivities(req, res, { geminiApiKey, groqApiKey });
     } else if (req.url === '/api/generate-simple-explanation') {
-      handleGenerateExplanation(req, res, geminiApiKey);
+      handleGenerateExplanation(req, res, { geminiApiKey, groqApiKey });
     } else if (req.url === '/api/generate-exam-checkpoint') {
-      handleGenerateExamCheckpoint(req, res, geminiApiKey);
+      handleGenerateExamCheckpoint(req, res, { geminiApiKey, groqApiKey });
     } else if (req.url === '/api/generate-sandbox-simulation') {
       handleGenerateSandboxSimulation(req, res, { geminiApiKey, groqApiKey });
     } else {

@@ -97,15 +97,15 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in"
     >
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full border-2 border-slate-200 p-6 sm:p-8 space-y-5 animate-in zoom-in-95 max-h-[92vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full border border-slate-200 p-5 sm:p-7 space-y-5 animate-in zoom-in-95 max-h-[92vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-slate-900 tracking-tight">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
                 Explain Simply (Multi-Tier)
               </h3>
               <p className="text-xs text-slate-500 font-medium">
@@ -117,7 +117,7 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
           <button
             onClick={onClose}
             type="button"
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -197,22 +197,22 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
         </div>
 
         {/* Big Concept Card Displaying Active Tier */}
-        <div className="p-6 rounded-3xl bg-gradient-to-br from-sky-50 via-blue-50/50 to-indigo-50 border-2 border-sky-200 text-center space-y-3">
-          <span className="text-6xl mx-auto block animate-float filter drop-shadow">
+        <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-200 text-center space-y-3">
+          <span className="text-5xl mx-auto block animate-float filter drop-shadow-xs">
             {selectedNode.symbol}
           </span>
-          <h4 className="text-2xl font-black text-slate-900">
+          <h4 className="text-xl sm:text-2xl font-bold text-slate-900">
             {selectedNode.label}
           </h4>
 
           {/* Tier 1: Sensory */}
           {activeTier === 'sensory' && (
-            <div className="p-4 bg-white/95 rounded-2xl border border-emerald-200 shadow-2xs space-y-1.5 text-left animate-in fade-in">
-              <span className="text-[10px] font-black uppercase text-emerald-700 tracking-wider flex items-center gap-1">
+            <div className="p-4 bg-white rounded-xl border border-emerald-200 shadow-2xs space-y-1.5 text-left animate-in fade-in">
+              <span className="text-[10px] font-bold uppercase text-emerald-700 tracking-wider flex items-center gap-1">
                 <Hand className="w-3 h-3" />
                 <span>Tier 1: Sensory Feel & Everyday Experience</span>
               </span>
-              <p className="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
+              <p className="text-sm sm:text-base font-semibold text-slate-800 leading-relaxed">
                 “{sensoryText}”
               </p>
             </div>
@@ -220,12 +220,12 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
 
           {/* Tier 2: Visual Metaphor Story */}
           {activeTier === 'visual' && (
-            <div className="p-4 bg-white/95 rounded-2xl border border-blue-200 shadow-2xs space-y-1.5 text-left animate-in fade-in">
-              <span className="text-[10px] font-black uppercase text-blue-700 tracking-wider flex items-center gap-1">
+            <div className="p-4 bg-white rounded-xl border border-blue-200 shadow-2xs space-y-1.5 text-left animate-in fade-in">
+              <span className="text-[10px] font-bold uppercase text-blue-700 tracking-wider flex items-center gap-1">
                 <Eye className="w-3 h-3" />
                 <span>Tier 2: Fun Visual Picture Story</span>
               </span>
-              <p className="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
+              <p className="text-sm sm:text-base font-semibold text-slate-800 leading-relaxed">
                 “{visualText}”
               </p>
             </div>
@@ -233,20 +233,20 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
 
           {/* Tier 3: Gentle Science Fact */}
           {activeTier === 'science' && (
-            <div className="p-4 bg-white/95 rounded-2xl border border-indigo-200 shadow-2xs space-y-1.5 text-left animate-in fade-in">
-              <span className="text-[10px] font-black uppercase text-indigo-700 tracking-wider flex items-center gap-1">
+            <div className="p-4 bg-white rounded-xl border border-indigo-200 shadow-2xs space-y-1.5 text-left animate-in fade-in">
+              <span className="text-[10px] font-bold uppercase text-indigo-700 tracking-wider flex items-center gap-1">
                 <Lightbulb className="w-3 h-3" />
                 <span>Tier 3: Simple Science Fact</span>
               </span>
-              <p className="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
+              <p className="text-sm sm:text-base font-semibold text-slate-800 leading-relaxed">
                 “{scienceText}”
               </p>
             </div>
           )}
 
           {/* Familiar Home Example */}
-          <div className="p-3 bg-white/70 rounded-xl border border-slate-200 text-left text-xs text-slate-600">
-            <span className="font-extrabold text-slate-800 block mb-0.5">🏠 Real-Life Home Example:</span>
+          <div className="p-3 bg-white rounded-xl border border-slate-200 text-left text-xs text-slate-600">
+            <span className="font-bold text-slate-800 block mb-0.5">🏠 Real-Life Home Example:</span>
             <span>{homeExampleText}</span>
           </div>
         </div>
@@ -257,7 +257,7 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
             onClick={handleGenerateAiMetaphor}
             disabled={isGeneratingAi}
             type="button"
-            className="min-h-[48px] px-3 py-2 rounded-2xl bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-300 text-indigo-900 text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+            className="min-h-[44px] px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-900 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-95 transition-all"
           >
             {isGeneratingAi ? (
               <>
@@ -275,7 +275,7 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
           <button
             onClick={handleSpeak}
             type="button"
-            className="min-h-[48px] px-3 py-2 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+            className="min-h-[44px] px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
           >
             <Volume2 className={`w-4 h-4 text-emerald-700 ${isSpeaking ? 'animate-bounce' : ''}`} />
             <span>Read Aloud</span>
@@ -288,7 +288,7 @@ export const SimplifiedExplanationModal: React.FC<SimplifiedExplanationModalProp
               if (onOpenAskDoubt) onOpenAskDoubt();
             }}
             type="button"
-            className="min-h-[48px] px-3 py-2 rounded-2xl bg-sky-50 hover:bg-sky-100 border border-sky-300 text-sky-900 text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+            className="min-h-[44px] px-3 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-300 text-sky-900 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
           >
             <HelpCircle className="w-4 h-4 text-sky-700" />
             <span>Ask a Doubt</span>

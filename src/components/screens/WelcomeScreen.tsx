@@ -269,83 +269,84 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         </div>
       </div>
 
-      {/* 2. "HOW ARE YOU FEELING TODAY?" CHEER CHECK-IN */}
-      <div className="w-full bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-3.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Smile className="w-5 h-5 text-amber-500" />
-            <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-              {language === 'KN' ? 'ಇಂದು ನಿಮ್ಮ ಮನಸ್ಥಿತಿ ಹೇಗಿದೆ?' : 'How are you feeling today, Explorer?'}
-            </h3>
+      {/* 2. ENGAGEMENT ROW: CHEERFUL MOOD CHECK-IN & DAILY WONDER STAR (2-COLUMN BALANCED GRID) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Left: How Are You Feeling Today? */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Smile className="w-4 h-4 text-amber-500" />
+              <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
+                {language === 'KN' ? 'ಇಂದು ನಿಮ್ಮ ಮನಸ್ಥಿತಿ ಹೇಗಿದೆ?' : 'How are you feeling today, Explorer?'}
+              </h3>
+            </div>
+            <span className="text-[11px] font-bold text-slate-400">
+              {language === 'KN' ? 'ಒಂದನ್ನು ಆರಿಸಿ!' : 'Pick your mood!'}
+            </span>
           </div>
-          <span className="text-xs font-bold text-slate-400">
-            {language === 'KN' ? 'ಒಂದನ್ನು ಆರಿಸಿ!' : 'Pick your mood!'}
-          </span>
+
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { id: 'happy', emoji: '😄', label: 'Happy', kn: 'ಖುಷಿ', cheer: 'Keep smiling and shining bright! ☀️', bg: 'hover:bg-amber-50/60 border-amber-200/80' },
+              { id: 'curious', emoji: '🌟', label: 'Curious', kn: 'ಕುತೂಹಲ', cheer: 'Curiosity is the key to all science! 🔍', bg: 'hover:bg-sky-50/60 border-sky-200/80' },
+              { id: 'excited', emoji: '🚀', label: 'Excited', kn: 'ಉತ್ಸಾಹಿ', cheer: 'Buckle up, adventure awaits! 🛸', bg: 'hover:bg-purple-50/60 border-purple-200/80' },
+              { id: 'brave', emoji: '🦁', label: 'Brave', kn: 'ಧೈರ್ಯಶಾಲಿ', cheer: 'You are fearless! Nothing stops you! 👑', bg: 'hover:bg-emerald-50/60 border-emerald-200/80' },
+            ].map((mood) => {
+              const isSelected = selectedMood === mood.id;
+              return (
+                <button
+                  key={mood.id}
+                  onClick={() => {
+                    sounds.playPop();
+                    setSelectedMood(mood.id);
+                    setShowConfetti(true);
+                    setTimeout(() => setShowConfetti(false), 1200);
+                  }}
+                  type="button"
+                  className={`p-3 rounded-2xl border-2 flex items-center gap-2.5 transition-all cursor-pointer active:scale-95 ${
+                    isSelected
+                      ? 'bg-amber-50 border-amber-400 shadow-2xs ring-2 ring-amber-200/50 scale-[1.01]'
+                      : `bg-slate-50/70 border-slate-200/80 ${mood.bg}`
+                  }`}
+                >
+                  <span className="text-2xl shrink-0" aria-hidden="true">{mood.emoji}</span>
+                  <div className="text-left min-w-0">
+                    <div className="text-xs font-black text-slate-900 leading-tight">
+                      {language === 'KN' ? mood.kn : mood.label}
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-bold truncate">
+                      {language === 'KN' ? mood.label : mood.kn}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { id: 'happy', emoji: '😄', label: 'Happy', kn: 'ಖುಷಿ', cheer: 'Keep smiling and shining bright! ☀️', bg: 'hover:bg-amber-50 border-amber-200' },
-            { id: 'curious', emoji: '🌟', label: 'Curious', kn: 'ಕುತೂಹಲ', cheer: 'Curiosity is the key to all science! 🔍', bg: 'hover:bg-sky-50 border-sky-200' },
-            { id: 'excited', emoji: '🚀', label: 'Excited', kn: 'ಉತ್ಸಾಹಿ', cheer: 'Buckle up, adventure awaits! 🛸', bg: 'hover:bg-purple-50 border-purple-200' },
-            { id: 'brave', emoji: '🦁', label: 'Brave', kn: 'ಧೈರ್ಯಶಾಲಿ', cheer: 'You are fearless! Nothing stops you! 👑', bg: 'hover:bg-emerald-50 border-emerald-200' },
-          ].map((mood) => {
-            const isSelected = selectedMood === mood.id;
-            return (
-              <button
-                key={mood.id}
-                onClick={() => {
-                  sounds.playPop();
-                  setSelectedMood(mood.id);
-                  setShowConfetti(true);
-                  setTimeout(() => setShowConfetti(false), 1200);
-                }}
-                type="button"
-                className={`p-3.5 rounded-2xl border-2 flex items-center gap-3 transition-all cursor-pointer active:scale-95 ${
-                  isSelected
-                    ? 'bg-amber-100/70 border-amber-400 shadow-sm ring-3 ring-amber-200/50 scale-102'
-                    : `bg-slate-50/70 border-slate-200 ${mood.bg}`
-                }`}
-              >
-                <span className="text-3xl shrink-0" aria-hidden="true">{mood.emoji}</span>
-                <div className="text-left min-w-0">
-                  <div className="text-xs font-black text-slate-900 leading-tight">
-                    {language === 'KN' ? mood.kn : mood.label}
-                  </div>
-                  <div className="text-[10px] text-slate-500 font-bold truncate">
-                    {language === 'KN' ? mood.label : mood.kn}
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 3. DAILY WONDER TREASURE / MYSTERY BOX 🎁 */}
-      <div className="w-full bg-gradient-to-r from-purple-50 via-pink-50 to-indigo-50 rounded-3xl border-2 border-purple-200 p-5 sm:p-7 shadow-xs">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
-          <div className="flex items-center gap-4 text-center sm:text-left">
-            <div className="w-16 h-16 rounded-3xl bg-white p-2 shadow-sm flex items-center justify-center shrink-0 border border-purple-200">
+        {/* Right: Daily Wonder Star / Mystery Box */}
+        <div className="bg-gradient-to-br from-purple-50/60 via-slate-50 to-indigo-50/60 rounded-3xl border border-purple-200/80 p-5 sm:p-6 shadow-2xs flex flex-col justify-between space-y-4">
+          <div className="flex items-start gap-3.5">
+            <div className="w-13 h-13 rounded-2xl bg-white p-2 shadow-2xs flex items-center justify-center shrink-0 border border-purple-200/80">
               <img
                 src="/mystery_gift.png"
                 alt="Mystery Gift Box"
-                className="w-12 h-12 object-contain animate-bounce"
+                className="w-9 h-9 object-contain"
               />
             </div>
-            <div>
-              <div className="flex items-center gap-2 justify-center sm:justify-start">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-purple-600 text-white">
-                  {language === 'KN' ? 'ದೈನಂದಿನ ರಹಸ್ಯ ಪೆಟ್ಟಿಗೆ' : 'Daily Wonder Star'}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-purple-600 text-white">
+                  {language === 'KN' ? 'ದೈನಂದಿನ ರಹಸ್ಯ' : 'Daily Wonder'}
                 </span>
-                <span className="text-xs font-bold text-purple-700">🎁 Free Daily Surprise</span>
+                <span className="text-xs font-bold text-purple-700">🎁 Fun Fact</span>
               </div>
-              <h3 className="text-base sm:text-lg font-black text-purple-950 mt-1">
+              <h3 className="text-sm sm:text-base font-black text-slate-900 mt-1">
                 {isTreasureOpen
                   ? (language === 'KN' ? 'ಇಂದಿನ ವಿಜ್ಞಾನ ರಹಸ್ಯ ಬಿಚ್ಚಿದೆ!' : "Today's Science Surprise Unlocked!")
-                  : (language === 'KN' ? 'ಇಂದಿನ ರಹಸ್ಯ ಉಡುಗೊರೆ ತೆರೆಯಿರಿ!' : "Open Today's Wonder Gift!")}
+                  : (language === 'KN' ? 'ಇಂದಿನ ರಹಸ್ಯ ಉಡುಗೊರೆ ತೆರೆಯಿರಿ!' : "Discover Today's Wonder Fact!")}
               </h3>
-              <p className="text-xs sm:text-sm text-purple-900/80 font-bold mt-0.5 max-w-md">
+              <p className="text-xs text-slate-600 font-medium mt-1 leading-snug">
                 {isTreasureOpen
                   ? (language === 'KN' ? scienceSurprises[surpriseIndex].kn : scienceSurprises[surpriseIndex].en)
                   : (language === 'KN'
@@ -358,9 +359,9 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <button
             onClick={handleOpenTreasure}
             type="button"
-            className="px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-black text-xs sm:text-sm shadow-md shadow-purple-500/25 active:scale-95 transition-all flex items-center gap-2 shrink-0 cursor-pointer"
+            className="w-full sm:w-auto self-end px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs shadow-xs active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <Gift className="w-4 h-4" />
+            <Gift className="w-3.5 h-3.5" />
             <span>
               {isTreasureOpen
                 ? (language === 'KN' ? 'ಮತ್ತೊಂದು ಆಶ್ಚರ್ಯ ನೋಡಿ' : 'Another Surprise')

@@ -1,13 +1,209 @@
 import { IncomingMessage, ServerResponse } from 'http';
 
+export type ApiKeyInput = string | { geminiApiKey?: string; groqApiKey?: string };
+
+function parseApiKeys(input: ApiKeyInput): { geminiApiKey: string; groqApiKey: string } {
+  if (typeof input === 'string') {
+    return { geminiApiKey: input, groqApiKey: '' };
+  }
+  return {
+    geminiApiKey: input?.geminiApiKey || '',
+    groqApiKey: input?.groqApiKey || ''
+  };
+}
+
+async function callLlmJson(
+  prompt: string,
+  keys: { geminiApiKey: string; groqApiKey: string },
+  systemPrompt: string
+): Promise<string | null> {
+  // 1. Try Groq LPU first if key available (sub-800ms ultra-fast inference)
+  if (keys.groqApiKey) {
+    const models = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'qwen/qwen3.8-27b'];
+    for (const model of models) {
+      try {
+        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${keys.groqApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: prompt },
+            ],
+            temperature: 0.3,
+            max_tokens: 2500,
+            response_format: { type: 'json_object' },
+          }),
+        });
+
+        if (groqRes.ok) {
+          const data = await groqRes.json();
+          const content = data.choices?.[0]?.message?.content;
+          if (content && content.trim()) {
+            return content.trim();
+          }
+        }
+      } catch (err) {
+        console.warn(`Groq model ${model} error:`, err);
+      }
+    }
+  }
+
+  // 2. Try Gemini if Groq failed or not configured
+  if (keys.geminiApiKey) {
+    try {
+      const geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${keys.geminiApiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `${systemPrompt}\n\n${prompt}` }] }],
+            generationConfig: {
+              temperature: 0.3,
+              responseMimeType: 'application/json',
+            },
+          }),
+        }
+      );
+
+      if (geminiRes.ok) {
+        const geminiData = await geminiRes.json();
+        const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text && text.trim()) {
+          return text.trim();
+        }
+      }
+    } catch (err) {
+      console.warn('Gemini API call failed:', err);
+    }
+  }
+
+  return null;
+}
+
+function buildDeterministicActivities(conceptLabel: string, conceptExplanation?: string) {
+  const label = conceptLabel || 'Concept';
+  return {
+    concept: label,
+    activities: [
+      {
+        id: `act-det-1-${Date.now()}`,
+        type: 'Hands-on',
+        title: `${label} Sensory & Tactile Investigation`,
+        description: `Students explore ${label} using physical classroom props and everyday materials. ${conceptExplanation ? `Observe: ${conceptExplanation}` : 'Touch, feel, and observe real-world physical transitions.'}`,
+        inclusiveTip: 'Students may touch, point, gesture, or use picture cards.',
+        duration: 10
+      },
+      {
+        id: `act-det-2-${Date.now()}`,
+        type: 'Visual',
+        title: `${label} Step-by-Step Visual Map`,
+        description: `Display a clean high-contrast visual transition chart breaking down how ${label} operates in nature and science.`,
+        inclusiveTip: 'Use dual symbol-word representations and high-contrast color cards.',
+        duration: 5
+      },
+      {
+        id: `act-det-3-${Date.now()}`,
+        type: 'Movement',
+        title: `${label} Kinesthetic Action Dance`,
+        description: `Students physically role-play the motion and transformation of ${label} through creative embodied movement.`,
+        inclusiveTip: 'All physical ranges of motion are welcomed (seated arm swaying or whole-body movement).',
+        duration: 8
+      },
+      {
+        id: `act-det-4-${Date.now()}`,
+        type: 'Pair Activity',
+        title: `${label} Partner Inquiry & AAC Exchange`,
+        description: `Pairs describe to each other what happens during ${label} using simple words or AAC communication boards.`,
+        inclusiveTip: 'Partners can use AAC boards, thumbs up/down, or single-word cards.',
+        duration: 7
+      }
+    ]
+  };
+}
+
+function buildDeterministicExplanation(conceptLabel: string, conceptExplanation?: string) {
+  const label = conceptLabel || 'Concept';
+  return {
+    concept: label,
+    sensory: `When ${label} happens, you can observe gentle physical shifts, temperature changes, or tactile textures with your hands.`,
+    visual: `Imagine ${label} like little friendly particles working together in a colorful chain of events!`,
+    science: conceptExplanation || `${label} is a natural scientific process where energy and matter transform step-by-step.`,
+    realLifeExample: `Think of when you see ${label} happening in everyday life around your home or kitchen!`
+  };
+}
+
+function buildDeterministicCheckpoint(conceptLabel: string, conceptExplanation?: string) {
+  const label = conceptLabel || 'Concept';
+  return {
+    conceptLabel: label,
+    memoryHook: `Remember: ${label} is an essential transformation milestone in our science journey!`,
+    questions: [
+      {
+        id: `q-det-1-${Date.now()}`,
+        type: 'visual_symbol',
+        prompt: `Which picture best represents ${label}?`,
+        options: [`${label} icon`, 'Empty space', 'Unrelated object'],
+        correctIndex: 0,
+        explanation: `${label} represents this key transformation in our concept roadmap.`
+      },
+      {
+        id: `q-det-2-${Date.now()}`,
+        type: 'real_life',
+        prompt: `Where can you observe ${label} in everyday life?`,
+        options: ['In daily household and outdoor changes', 'Only in outer space', 'Nowhere on Earth'],
+        correctIndex: 0,
+        explanation: `${label} happens naturally in our everyday environment.`
+      },
+      {
+        id: `q-det-3-${Date.now()}`,
+        type: 'cause_effect',
+        prompt: `What causes ${label} to occur?`,
+        options: ['Energy exchange and scientific prerequisite conditions', 'Random luck', 'Magic'],
+        correctIndex: 0,
+        explanation: `${label} requires causal energy transitions to occur.`
+      },
+      {
+        id: `q-det-4-${Date.now()}`,
+        type: 'sensory_observation',
+        prompt: `How would you sensory-observe ${label}?`,
+        options: ['By looking, feeling temperature, or noticing changes', 'It has no sensory presence', 'By closing your eyes'],
+        correctIndex: 0,
+        explanation: `We can observe ${label} through sight and touch.`
+      },
+      {
+        id: `q-det-5-${Date.now()}`,
+        type: 'curriculum_sequence',
+        prompt: `Why is understanding ${label} important in the sequence?`,
+        options: ['It connects the previous milestone to the next one', 'It has no connection', 'It should be skipped'],
+        correctIndex: 0,
+        explanation: `${label} is a vital prerequisite step in the causal chain.`
+      },
+      {
+        id: `q-det-6-${Date.now()}`,
+        type: 'concept_check',
+        prompt: `What happens when ${label} is complete?`,
+        options: ['The system moves to the next phase', 'Everything stops', 'Nothing happens'],
+        correctIndex: 0,
+        explanation: `${label} leads to the next milestone in the cycle.`
+      }
+    ]
+  };
+}
+
 /**
  * Serverless handler for AI Inclusive Activities Generation (#1).
- * Calls Gemini 2.5 Flash on the server side only; zero client key exposure.
+ * Supports both Groq LPU and Gemini 2.5 Flash with deterministic fallback.
  */
 export async function handleGenerateActivities(
   req: IncomingMessage,
   res: ServerResponse,
-  apiKey: string
+  apiKeyInput: ApiKeyInput
 ) {
   if (req.method !== 'POST') {
     res.statusCode = 405;
@@ -16,12 +212,7 @@ export async function handleGenerateActivities(
     return;
   }
 
-  if (!apiKey) {
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: 'Server API key not configured' }));
-    return;
-  }
+  const keys = parseApiKeys(apiKeyInput);
 
   let body = '';
   req.on('data', chunk => {
@@ -30,8 +221,8 @@ export async function handleGenerateActivities(
 
   req.on('end', async () => {
     try {
-      const parsed = JSON.parse(body);
-      const { conceptLabel, conceptExplanation } = parsed;
+      const parsed = JSON.parse(body || '{}');
+      const { conceptLabel, conceptExplanation, topicTitle } = parsed;
 
       if (!conceptLabel) {
         res.statusCode = 400;
@@ -42,13 +233,13 @@ export async function handleGenerateActivities(
 
       const prompt = `
 You are an expert inclusive special-education curriculum designer.
-Generate 4 diverse, accessible pre-class teaching activities for introducing the concept: "${conceptLabel}" (${conceptExplanation || ''}).
+Generate 4 diverse, accessible pre-class teaching activities for introducing the concept: "${conceptLabel}" (Topic: ${topicTitle || 'Science'}, Explanation: ${conceptExplanation || ''}).
 
 Required activity types:
-1. "Hands-on": Real-life tactile, concrete, multi-sensory experiment (using everyday classroom items like ice, cold glass, wet paper).
+1. "Hands-on": Real-life tactile, concrete, multi-sensory experiment using everyday classroom materials.
 2. "Visual": Picture / diagram / color breakdown of the process.
 3. "Movement": Physical movement / kinesthetic roleplay for the children.
-4. "Pair Activity" or "Communication": Low-anxiety partner interaction or AAC symbol response.
+4. "Pair Activity": Low-anxiety partner interaction or AAC symbol response.
 
 Format your response as strict JSON:
 {
@@ -66,32 +257,25 @@ Format your response as strict JSON:
 }
 `;
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.3,
-              responseMimeType: 'application/json'
-            }
-          })
+      let parsedActivities: any = null;
+      const rawJson = await callLlmJson(prompt, keys, 'You are an expert inclusive special-education curriculum designer. Respond strictly in valid JSON.');
+      if (rawJson) {
+        try {
+          let clean = rawJson.replace(/```(?:json)?/gi, '').trim();
+          const start = clean.indexOf('{');
+          const end = clean.lastIndexOf('}');
+          if (start !== -1 && end > start) {
+            clean = clean.substring(start, end + 1);
+          }
+          parsedActivities = JSON.parse(clean);
+        } catch (e) {
+          console.warn('Failed to parse AI activities JSON:', e);
         }
-      );
-
-      if (!response.ok) {
-        const errText = await response.text();
-        res.statusCode = response.status;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ error: 'Gemini API call failed', details: errText }));
-        return;
       }
 
-      const data = await response.json();
-      const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      const parsedActivities = JSON.parse(content || '{}');
+      if (!parsedActivities || !Array.isArray(parsedActivities.activities) || parsedActivities.activities.length === 0) {
+        parsedActivities = buildDeterministicActivities(conceptLabel, conceptExplanation);
+      }
 
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
@@ -112,7 +296,7 @@ Format your response as strict JSON:
 export async function handleGenerateExplanation(
   req: IncomingMessage,
   res: ServerResponse,
-  apiKey: string
+  apiKeyInput: ApiKeyInput
 ) {
   if (req.method !== 'POST') {
     res.statusCode = 405;
@@ -121,12 +305,7 @@ export async function handleGenerateExplanation(
     return;
   }
 
-  if (!apiKey) {
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: 'Server API key not configured' }));
-    return;
-  }
+  const keys = parseApiKeys(apiKeyInput);
 
   let body = '';
   req.on('data', chunk => {
@@ -135,7 +314,7 @@ export async function handleGenerateExplanation(
 
   req.on('end', async () => {
     try {
-      const parsed = JSON.parse(body);
+      const parsed = JSON.parse(body || '{}');
       const { conceptLabel, conceptExplanation } = parsed;
 
       if (!conceptLabel) {
@@ -165,32 +344,25 @@ Format your response as strict JSON:
 }
 `;
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.3,
-              responseMimeType: 'application/json'
-            }
-          })
+      let parsedExplanation: any = null;
+      const rawJson = await callLlmJson(prompt, keys, 'You are an expert in explaining complex science concepts to young children. Respond strictly in valid JSON.');
+      if (rawJson) {
+        try {
+          let clean = rawJson.replace(/```(?:json)?/gi, '').trim();
+          const start = clean.indexOf('{');
+          const end = clean.lastIndexOf('}');
+          if (start !== -1 && end > start) {
+            clean = clean.substring(start, end + 1);
+          }
+          parsedExplanation = JSON.parse(clean);
+        } catch (e) {
+          console.warn('Failed to parse AI explanation JSON:', e);
         }
-      );
-
-      if (!response.ok) {
-        const errText = await response.text();
-        res.statusCode = response.status;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ error: 'Gemini API call failed', details: errText }));
-        return;
       }
 
-      const data = await response.json();
-      const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      const parsedExplanation = JSON.parse(content || '{}');
+      if (!parsedExplanation || !parsedExplanation.sensory || !parsedExplanation.visual) {
+        parsedExplanation = buildDeterministicExplanation(conceptLabel, conceptExplanation);
+      }
 
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
@@ -206,12 +378,12 @@ Format your response as strict JSON:
 
 /**
  * Serverless handler for AI Exam & Spaced Revision Checkpoints.
- * Generates 6 multi-tier inclusive revision checkpoint questions (more than 5) with Gemini 2.5 Flash.
+ * Generates 6 multi-tier inclusive revision checkpoint questions with Groq / Gemini / Fallback.
  */
 export async function handleGenerateExamCheckpoint(
   req: IncomingMessage,
   res: ServerResponse,
-  apiKey: string
+  apiKeyInput: ApiKeyInput
 ) {
   if (req.method !== 'POST') {
     res.statusCode = 405;
@@ -220,12 +392,7 @@ export async function handleGenerateExamCheckpoint(
     return;
   }
 
-  if (!apiKey) {
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: 'Server API key not configured' }));
-    return;
-  }
+  const keys = parseApiKeys(apiKeyInput);
 
   let body = '';
   req.on('data', chunk => {
@@ -234,7 +401,7 @@ export async function handleGenerateExamCheckpoint(
 
   req.on('end', async () => {
     try {
-      const parsed = JSON.parse(body);
+      const parsed = JSON.parse(body || '{}');
       const { conceptLabel, conceptExplanation } = parsed;
 
       if (!conceptLabel) {
@@ -271,77 +438,30 @@ Format your response as strict JSON:
       "options": ["Option A", "Option B", "Option C"],
       "correctIndex": 0,
       "explanation": "Why this option is correct..."
-    },
-    {
-      "id": "q-2",
-      "type": "real_life",
-      "prompt": "Question text...",
-      "options": ["Option A", "Option B", "Option C"],
-      "correctIndex": 1,
-      "explanation": "Why this option is correct..."
-    },
-    {
-      "id": "q-3",
-      "type": "cause_effect",
-      "prompt": "Question text...",
-      "options": ["Option A", "Option B", "Option C"],
-      "correctIndex": 0,
-      "explanation": "Why this option is correct..."
-    },
-    {
-      "id": "q-4",
-      "type": "sensory_observation",
-      "prompt": "Question text...",
-      "options": ["Option A", "Option B", "Option C"],
-      "correctIndex": 0,
-      "explanation": "Why this option is correct..."
-    },
-    {
-      "id": "q-5",
-      "type": "curriculum_sequence",
-      "prompt": "Question text...",
-      "options": ["Option A", "Option B", "Option C"],
-      "correctIndex": 0,
-      "explanation": "Why this option is correct..."
-    },
-    {
-      "id": "q-6",
-      "type": "concept_check",
-      "prompt": "Question text...",
-      "options": ["Option A", "Option B", "Option C"],
-      "correctIndex": 0,
-      "explanation": "Why this option is correct..."
     }
   ]
 }
 `;
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.3,
-              responseMimeType: 'application/json'
-            }
-          })
+      let parsedCheckpoint: any = null;
+      const rawJson = await callLlmJson(prompt, keys, 'You are an expert inclusive special-education examiner. Respond strictly in valid JSON.');
+      if (rawJson) {
+        try {
+          let clean = rawJson.replace(/```(?:json)?/gi, '').trim();
+          const start = clean.indexOf('{');
+          const end = clean.lastIndexOf('}');
+          if (start !== -1 && end > start) {
+            clean = clean.substring(start, end + 1);
+          }
+          parsedCheckpoint = JSON.parse(clean);
+        } catch (e) {
+          console.warn('Failed to parse AI checkpoint JSON:', e);
         }
-      );
-
-      if (!response.ok) {
-        const errText = await response.text();
-        res.statusCode = response.status;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ error: 'Gemini API call failed', details: errText }));
-        return;
       }
 
-      const data = await response.json();
-      const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      const parsedCheckpoint = JSON.parse(content || '{}');
+      if (!parsedCheckpoint || !Array.isArray(parsedCheckpoint.questions) || parsedCheckpoint.questions.length === 0) {
+        parsedCheckpoint = buildDeterministicCheckpoint(conceptLabel, conceptExplanation);
+      }
 
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
@@ -400,7 +520,7 @@ export async function handleGenerateSandboxSimulation(
 
       const prompt = `
 You are an expert inclusive science educator and interactive STEM simulation designer.
-Create a rich, engaging 4-to-5 step cause-and-effect science simulation specifically answering the inquiry question:
+Create a rich, engaging 4-to-6 step cause-and-effect science simulation specifically answering the inquiry question:
 Teacher's Question: "${questionText}"
 Lesson Context: "${topicText}"
 

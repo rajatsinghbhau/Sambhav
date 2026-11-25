@@ -67,15 +67,15 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in"
     >
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full border-2 border-slate-200 p-6 sm:p-8 space-y-5 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full border border-slate-200 p-5 sm:p-7 space-y-5 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
               <MessageSquarePlus className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-slate-900 tracking-tight">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
                 {language === 'KN' ? 'ಸಂದೇಹ ಕೇಳಿ (Ask a Doubt)' : 'Ask a Doubt'}
               </h3>
               <p className="text-xs text-slate-500 font-medium">
@@ -87,7 +87,7 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
           <button
             onClick={onClose}
             type="button"
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -147,7 +147,7 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
                 value={questionText}
                 onChange={e => setQuestionText(e.target.value)}
                 placeholder={language === 'KN' ? 'ಉದಾಹರಣೆಗೆ: ತಣ್ಣನೆಯ ಲೋಟದ ಮೇಲೆ ನೀರಿನ ಹನಿಗಳು ಏಕೆ ಉಂಟಾಗುತ್ತವೆ?' : 'e.g. Why does water vapour become drops on cold glass?'}
-                className="w-full p-3 rounded-2xl border-2 border-slate-200 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-medium leading-relaxed"
+                className="w-full p-3 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium leading-relaxed"
                 required
               />
             </div>
@@ -177,7 +177,7 @@ export const StudentAskDoubtModal: React.FC<StudentAskDoubtModalProps> = ({
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full min-h-[50px] rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-black text-sm flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-indigo-600/25 btn-tactile"
+                className="w-full min-h-[44px] rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-98 text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-xs btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               >
                 <Send className="w-4 h-4" />
                 <span>{language === 'KN' ? 'ಶಿಕ್ಷಕರಿಗೆ ಕಳುಹಿಸಿ' : 'Send to Teacher'}</span>

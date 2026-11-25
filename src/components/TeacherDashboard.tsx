@@ -157,16 +157,16 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in">
       {/* Top Banner answering "SAMBHAV helps teachers turn classroom evidence into the next teaching action." */}
-      <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-blue-900 rounded-3xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white border border-slate-800/90 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-indigo-200 text-xs font-black">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-700/60 text-indigo-300 text-xs font-black">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span>{language === 'KN' ? 'ಶಿಕ್ಷಕರ ಗುಪ್ತಚರ ಕೇಂದ್ರ' : 'Teacher Intelligence Hub'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
             {language === 'KN' ? 'ತರಗತಿ ಸಾಕ್ಷ್ಯಾಧಾರ ಮತ್ತು ಬೋಧನಾ ವಾಸ್ತುಶಿಲ್ಪ' : 'Classroom Evidence & Teaching Architecture'}
           </h2>
-          <p className="text-sm text-indigo-100 font-medium leading-relaxed">
+          <p className="text-sm text-slate-300 font-medium leading-relaxed">
             {language === 'KN'
               ? '“ತರಗತಿಯ ಸಾಕ್ಷ್ಯವನ್ನು ಮುಂದಿನ ಬೋಧನಾ ಕ್ರಿಯೆಯನ್ನಾಗಿ ಪರಿವರ್ತಿಸಲು ಸಂಭವ್ ಶಿಕ್ಷಕರಿಗೆ ನೆರವಾಗುತ್ತದೆ.”'
               : '“SAMBHAV helps teachers turn classroom evidence into the next teaching action.”'}
@@ -174,32 +174,38 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
         </div>
 
         {/* Quick Summary Pill */}
-        <div className="bg-white/10 border border-white/20 p-4 rounded-2xl text-xs space-y-1 self-start md:self-auto shrink-0 max-w-xs">
+        <div className="bg-slate-800/90 border border-slate-700/80 p-4 rounded-2xl text-xs space-y-1 self-start md:self-auto shrink-0 max-w-xs shadow-xs">
           <span className="text-[10px] font-black uppercase tracking-wider text-amber-300 block">
             {language === 'KN' ? 'ಬೋಧನಾ ಸಾರಾಂಶ' : 'Pedagogical Recap'}
           </span>
           <p className="font-bold text-white leading-snug">
             {recap.summarySentence}
           </p>
-          <span className="text-[10px] text-indigo-200 block pt-1">
+          <span className="text-[10px] text-slate-400 block pt-1">
             {language === 'KN' ? 'ಗಮನ:' : 'Focus:'} {recap.suggestedFocus}
           </span>
         </div>
       </div>
 
       {/* 8-Phase Learning Loop Banner */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs">
-        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
-          {language === 'KN' ? 'ಪರಿಕಲ್ಪನಾ-ನಕ್ಷೆ ಕಲಿಕಾ ಚಕ್ರ:' : 'Concept-Graph Learning Loop:'}
-        </span>
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-2xs">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+            {language === 'KN' ? 'ಪರಿಕಲ್ಪನಾ-ನಕ್ಷೆ ಕಲಿಕಾ ಚಕ್ರ:' : 'Concept-Graph Learning Pipeline:'}
+          </span>
+          <span className="text-[10px] font-bold text-indigo-600 hidden sm:inline">
+            Closed-Loop Pedagogical System
+          </span>
+        </div>
+        <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none py-1">
           {learningLoop.map((step, idx) => (
             <React.Fragment key={step.en}>
-              <span className="px-3 py-1.5 rounded-xl text-xs font-black bg-slate-50 text-slate-800 border border-slate-200 shadow-2xs">
+              <span className="px-2.5 sm:px-3 py-1 rounded-xl text-[11px] sm:text-xs font-black bg-slate-50 text-slate-800 border border-slate-200/80 shadow-2xs shrink-0 whitespace-nowrap">
+                <span className="text-indigo-600 mr-1">{idx + 1}.</span>
                 {language === 'KN' ? step.kn : step.en}
               </span>
               {idx < learningLoop.length - 1 && (
-                <ArrowRight className="w-3 h-3 text-slate-400 shrink-0" />
+                <ArrowRight className="w-3 h-3 text-slate-300 shrink-0" />
               )}
             </React.Fragment>
           ))}
@@ -207,7 +213,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       </div>
 
       {/* 4 CORE TABS: Prepare, Student Activity, Evidence, Revision */}
-      <div className="flex items-center gap-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/90 overflow-x-auto scrollbar-none">
+      <div className="flex items-center gap-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 overflow-x-auto scrollbar-none">
         {dashboardTabs.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -219,9 +225,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 setActiveTab(tab.id as TeacherDashboardTab);
               }}
               type="button"
-              className={`min-h-[50px] shrink-0 min-w-fit px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap btn-tactile ${
+              className={`min-h-[48px] shrink-0 min-w-fit px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap ${
                 isActive
-                  ? 'bg-white text-indigo-700 shadow-sm border border-slate-200/80 ring-2 ring-indigo-200'
+                  ? 'bg-white text-indigo-700 shadow-xs border border-slate-200/80 ring-2 ring-indigo-200/60'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >

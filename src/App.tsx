@@ -16,7 +16,7 @@ import { StudentAskDoubtModal } from './components/stage4/StudentAskDoubtModal';
 import { StudentRevisionLibraryModal } from './components/stage4/StudentRevisionLibraryModal';
 import { LearnedTopic } from './types/stage4';
 import { offlineStorage, registerServiceWorker } from './utils/offlinePersistence';
-import { PlusCircle, LogOut, RotateCcw } from 'lucide-react';
+import { PlusCircle, LogOut } from 'lucide-react';
 import { sounds } from './utils/soundEffects';
 
 export type UserRole = 'student' | 'teacher' | null;
@@ -188,7 +188,7 @@ export function App() {
       {/* HEADER */}
       <header className="w-full bg-white/95 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200/80 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-          
+
           {/* Logo & Brand Identity */}
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-indigo-600/20 text-xl font-bold">
@@ -199,11 +199,10 @@ export function App() {
                 <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
                   SAMBHAV 2.0
                 </h1>
-                <span className={`hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                  userRole === 'teacher'
-                    ? 'bg-amber-50 text-amber-800 border-amber-300'
-                    : 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                }`}>
+                <span className={`hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${userRole === 'teacher'
+                  ? 'bg-amber-50 text-amber-800 border-amber-300'
+                  : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                  }`}>
                   {userRole === 'teacher' ? 'Teacher Edition' : 'Student Edition'}
                 </span>
               </div>
@@ -215,25 +214,22 @@ export function App() {
 
           {/* Active User Persona Badge */}
           {userRole && (
-            <div className="hidden xl:flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-200/70">
-              <div className="flex items-center gap-2.5">
-                <span className="text-2xl" aria-hidden="true">
-                  {userRole === 'teacher' ? '🧑‍🏫' : '👧'}
-                </span>
-                <div>
-                  <div className="text-xs font-black text-slate-900 leading-tight">
-                    {userRole === 'teacher' ? 'Teacher: Educator' : 'Student: Ananya'}
-                  </div>
-                  <div className="text-[11px] text-indigo-600 font-extrabold truncate max-w-[140px] leading-tight">
-                    {userRole === 'teacher' ? 'Classroom Hub' : (graph.title || 'Water Cycle Lesson')}
-                  </div>
+            <div className="hidden xl:flex items-center gap-3 bg-slate-50/90 px-3.5 py-1.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+              <span className="text-xl" aria-hidden="true">
+                {userRole === 'teacher' ? '🧑‍🏫' : '👧'}
+              </span>
+              <div>
+                <div className="text-xs font-black text-slate-900 leading-tight">
+                  {userRole === 'teacher' ? 'Teacher: Educator' : 'Student: Ananya'}
+                </div>
+                <div className="text-[10px] text-indigo-600 font-extrabold truncate max-w-[130px] leading-tight">
+                  {userRole === 'teacher' ? 'Classroom Hub' : (graph.title || 'Water Cycle')}
                 </div>
               </div>
-              <div className="h-6 w-px bg-slate-200"></div>
-              <div className="text-left">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Trust Principle</span>
-                <span className="text-xs font-bold text-slate-700">AI suggests. Teacher approves. Child confirms.</span>
-              </div>
+              <div className="h-4 w-px bg-slate-200"></div>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                AI Suggests • Teacher Approves • Child Confirms
+              </span>
             </div>
           )}
 
@@ -246,11 +242,10 @@ export function App() {
                 onClick={() => handleLanguageToggle('EN')}
                 aria-label="Switch to English"
                 aria-pressed={language === 'EN'}
-                className={`min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                  language === 'EN'
-                    ? 'bg-white text-indigo-700 shadow-sm border border-slate-200/60'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
+                className={`min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${language === 'EN'
+                  ? 'bg-white text-indigo-700 shadow-sm border border-slate-200/60'
+                  : 'text-slate-600 hover:text-slate-900'
+                  }`}
               >
                 EN
               </button>
@@ -259,11 +254,10 @@ export function App() {
                 onClick={() => handleLanguageToggle('KN')}
                 aria-label="Switch to Kannada"
                 aria-pressed={language === 'KN'}
-                className={`min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                  language === 'KN'
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
+                className={`min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${language === 'KN'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+                  }`}
               >
                 ಕನ್ನಡ
               </button>
@@ -322,11 +316,10 @@ export function App() {
                       type="button"
                       aria-label={tab.label}
                       aria-selected={isActive}
-                      className={`min-h-[48px] px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                        isActive
-                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-2 ring-indigo-200'
-                          : 'bg-white border border-slate-200/80 text-slate-700 hover:bg-slate-50'
-                      }`}
+                      className={`min-h-[48px] px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${isActive
+                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-2 ring-indigo-200'
+                        : 'bg-white border border-slate-200/80 text-slate-700 hover:bg-slate-50'
+                        }`}
                     >
                       <span>{tab.emoji}</span>
                       <span>{tab.label}</span>
@@ -365,16 +358,16 @@ export function App() {
         {/* CASE 2: STUDENT ROLE ACTIVE -> EXCLUSIVE STUDENT EXPERIENCE */}
         {userRole === 'student' && (
           <>
-            {/* PART 15: Student Quick Action Hub */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in fade-in">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="text-2xl p-1.5 bg-indigo-50 rounded-xl shrink-0">
-                  {graph.nodes[0]?.symbol || '💧'}
-                </span>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-black uppercase text-indigo-700 tracking-wider">
-                      Active Lesson
+            {/* Student Context & Quick Assist Bar (Active on learning tabs) */}
+            {currentTab !== 'home' && (
+              <div className="bg-white rounded-2xl border border-slate-200/80 px-4 py-2.5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="text-xl p-1 bg-indigo-50 rounded-xl shrink-0">
+                    {graph.nodes[0]?.symbol || '💧'}
+                  </span>
+                  <div className="min-w-0 flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-black text-slate-900 truncate">
+                      {graph.title || 'The Water Cycle'}
                     </span>
                     <button
                       onClick={() => {
@@ -384,97 +377,37 @@ export function App() {
                       type="button"
                       className="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold underline cursor-pointer whitespace-nowrap"
                     >
-                      (Change / Revise Past Topics)
+                      {language === 'KN' ? '(ವಿಷಯ ಬದಲಿಸಿ)' : '(Change Topic)'}
                     </button>
                   </div>
-                  <h3 className="text-sm sm:text-base font-black text-slate-900 truncate">
-                    {graph.title || 'The Water Cycle'}
-                  </h3>
+                </div>
+
+                {/* Contextual Student Helpers (Zero duplicate tabs) */}
+                <div className="flex items-center gap-2 self-end sm:self-center">
+                  <button
+                    onClick={() => {
+                      sounds.playPop();
+                      setIsExplainSimplyOpen(true);
+                    }}
+                    type="button"
+                    className="min-h-[36px] px-3.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-xs font-bold text-sky-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs whitespace-nowrap"
+                  >
+                    <span>🔎 Explain Simply</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      sounds.playPop();
+                      setIsAskDoubtOpen(true);
+                    }}
+                    type="button"
+                    className="min-h-[36px] px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-xs font-bold text-indigo-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs whitespace-nowrap"
+                  >
+                    <span>💬 Ask a Doubt</span>
+                  </button>
                 </div>
               </div>
-
-              {/* Quick Actions: 📖 Learn, 🔎 Explain Simply, 💬 Ask a Doubt, 🗣️ Communication, 🧩 Teach-Back, 🔄 Revise */}
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={() => {
-                    sounds.playPop();
-                    setCurrentTab('graph');
-                  }}
-                  type="button"
-                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-                    currentTab === 'graph'
-                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
-                      : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
-                  }`}
-                >
-                  <span>📖 Learn</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    sounds.playPop();
-                    setIsExplainSimplyOpen(true);
-                  }}
-                  type="button"
-                  className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-xs font-black text-sky-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
-                >
-                  <span>🔎 Explain Simply</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    sounds.playPop();
-                    setIsAskDoubtOpen(true);
-                  }}
-                  type="button"
-                  className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-xs font-black text-indigo-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
-                >
-                  <span>💬 Ask a Doubt</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    sounds.playPop();
-                    setCurrentTab('communication');
-                  }}
-                  type="button"
-                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-                    currentTab === 'communication'
-                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
-                      : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
-                  }`}
-                >
-                  <span>{language === 'KN' ? '🧪 ವಿಜ್ಞಾನ ಲ್ಯಾಬ್' : '🧪 Science Sandbox'}</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    sounds.playPop();
-                    setCurrentTab('teach_back');
-                  }}
-                  type="button"
-                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-                    currentTab === 'teach_back'
-                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
-                      : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
-                  }`}
-                >
-                  <span>🧩 Tell the Story</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    sounds.playPop();
-                    setIsRevisionLibraryOpen(true);
-                  }}
-                  type="button"
-                  className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-xs font-black text-purple-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
-                >
-                  <RotateCcw className="w-3.5 h-3.5 text-purple-700 shrink-0" />
-                  <span>🔄 Revise Past Topics</span>
-                </button>
-              </div>
-            </div>
+            )}
 
             {/* STUDENT SCREENS */}
             {currentTab === 'home' && (

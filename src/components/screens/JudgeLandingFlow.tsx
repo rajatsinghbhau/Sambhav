@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowDown, Play, Sparkles } from 'lucide-react';
+import { Play, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects';
 
 interface JudgeLandingFlowProps {
@@ -12,42 +12,44 @@ export const JudgeLandingFlow: React.FC<JudgeLandingFlowProps> = ({
   onExploreFreely,
 }) => {
   const steps = [
-    { title: 'Lesson', desc: 'Teacher prepares Water Cycle text or curriculum', icon: '📖' },
-    { title: 'Concept Graph', desc: 'Canonical linear milestones (Sun → Heat → Water → ...)', icon: '🗺️' },
-    { title: 'Communication', desc: 'Accessible touch-first AAC communication board with audio speech', icon: '💬' },
-    { title: 'Teach-Back', desc: 'Child constructs concept sequence (Attempt 1: Condensation early)', icon: '🧩' },
-    { title: 'Demonstrated Evidence', desc: 'Deterministic predecessor rule: 🟢 Demonstrated | 🟡 Needs reinforcement', icon: '📊' },
-    { title: 'Reinforcement', desc: 'Targeted practice check on weak concept (Condensation)', icon: '🔁' },
-    { title: 'Teacher Recap', desc: 'Derived pedagogical continuation: “Condensation reinforced. Rain next.”', icon: '📋' },
+    { num: '01', title: 'Lesson Prep', desc: 'Curriculum text ingestion or NCERT canonical topics', icon: '📖' },
+    { num: '02', title: 'Concept DAG', desc: 'Canonical prerequisite graph (Sun → Heat → Evap...)', icon: '🗺️' },
+    { num: '03', title: 'AAC Multi-Sensory', desc: 'Touch-first visual, procedural audio & haptics', icon: '💬' },
+    { num: '04', title: 'Teach-Back', desc: 'Student constructs causal sequence chain', icon: '🧩' },
+    { num: '05', title: 'Evidence Engine', desc: 'Deterministic assessment: 🟢 Mastered | 🟡 Needs Practice', icon: '📊' },
+    { num: '06', title: 'Reinforce', desc: 'Targeted tactile checkpoints on weak transitions', icon: '🔁' },
+    { num: '07', title: 'Spaced Exam Plan', desc: 'Automated +2d, +7d, +21d retention schedule', icon: '📋' },
   ];
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 space-y-8 shadow-sm animate-in fade-in">
+    <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 space-y-6 shadow-sm animate-in fade-in">
       {/* Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-3">
-        <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 px-4 py-1.5 rounded-full text-xs font-bold text-indigo-700">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-          <span>SAMBHAV 2.0 Product Architecture</span>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+        <div>
+          <div className="inline-flex items-center gap-1.5 bg-indigo-50 border border-indigo-200/80 px-3 py-1 rounded-full text-[11px] font-bold text-indigo-700 mb-1">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Judge & Educator Architecture Overview</span>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            Complete Closed-Loop Learning Pipeline
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+            How SAMBHAV 2.0 turns student multimodal interaction into deterministic diagnostic evidence and teacher action.
+          </p>
         </div>
-        <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-          Inclusive Classroom Learning Flow
-        </h2>
-        <p className="text-xs sm:text-sm text-slate-500 font-medium">
-          Understand the complete child and teacher journey in seconds.
-        </p>
 
-        {/* Master One-Click Demo Mode Button */}
-        <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+        {/* Action Controls */}
+        <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center">
           <button
             onClick={() => {
               sounds.playSuccessChime();
               onStartDemo();
             }}
             type="button"
-            className="min-h-[52px] px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-black text-base shadow-lg shadow-indigo-600/30 flex items-center gap-2.5 transition-all cursor-pointer classy-btn"
+            className="min-h-[44px] px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold text-xs shadow-md shadow-indigo-600/25 flex items-center gap-2 transition-all cursor-pointer"
           >
-            <Play className="w-5 h-5 fill-current" />
-            <span>Start One-Click Demo</span>
+            <Play className="w-3.5 h-3.5 fill-current" />
+            <span>Launch 1-Click Demo</span>
           </button>
 
           <button
@@ -56,33 +58,62 @@ export const JudgeLandingFlow: React.FC<JudgeLandingFlowProps> = ({
               onExploreFreely();
             }}
             type="button"
-            className="min-h-[52px] px-6 py-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-sm cursor-pointer classy-btn"
+            className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs cursor-pointer transition-colors"
           >
             Explore Freely
           </button>
         </div>
       </div>
 
-      {/* Vertical Linear Flow Diagram matching Section 8 requirements */}
-      <div className="max-w-xl mx-auto space-y-2 pt-2">
+      {/* 7-Step Pipeline Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
         {steps.map((s, idx) => (
-          <React.Fragment key={s.title}>
-            <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200 flex items-center gap-4 shadow-2xs hover:border-indigo-300 transition-colors">
-              <span className="text-3xl p-2 bg-white rounded-xl shadow-2xs shrink-0">{s.icon}</span>
-              <div className="min-w-0 flex-1">
-                <span className="text-xs font-black uppercase tracking-wider text-indigo-600 block">Step {idx + 1}</span>
-                <h4 className="text-sm font-extrabold text-slate-900 leading-tight">{s.title}</h4>
-                <p className="text-xs text-slate-500 mt-0.5 leading-snug">{s.desc}</p>
-              </div>
+          <div
+            key={s.num}
+            className="relative p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-indigo-300 hover:bg-indigo-50/20 transition-all flex flex-col justify-between space-y-3 group shadow-2xs"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black text-indigo-600 bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                {s.num}
+              </span>
+              <span className="text-2xl group-hover:scale-110 transition-transform">{s.icon}</span>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-black text-slate-900 leading-tight">
+                {s.title}
+              </h4>
+              <p className="text-[11px] text-slate-500 font-medium mt-1 leading-snug">
+                {s.desc}
+              </p>
             </div>
 
             {idx < steps.length - 1 && (
-              <div className="flex justify-center text-slate-300 py-0.5">
-                <ArrowDown className="w-4 h-4 text-indigo-400" />
+              <div className="hidden lg:block absolute -right-2 top-1/2 -translate-y-1/2 z-10 text-slate-300 pointer-events-none">
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
               </div>
             )}
-          </React.Fragment>
+          </div>
         ))}
+      </div>
+
+      {/* Core Architectural Trust Guarantee Bar */}
+      <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span className="font-bold text-slate-800">
+            Pedagogical Integrity:
+          </span>
+          <span className="text-slate-600 font-medium">
+            Grading is 100% deterministic (zero LLM hallucination). AI is reserved for simulation generation.
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 text-[11px] font-bold text-slate-500">
+          <span>• Offline-Ready</span>
+          <span>• Dual Bilingual (EN/KN)</span>
+          <span>• Zero Student PII Leakage</span>
+        </div>
       </div>
     </div>
   );

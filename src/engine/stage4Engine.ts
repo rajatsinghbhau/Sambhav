@@ -1,4 +1,4 @@
-import { ConceptGraph } from '../types/conceptGraph';
+import { ConceptGraph, ConceptNode } from '../types/conceptGraph';
 import { evaluateEvidence } from './evidenceEngine';
 import {
   TeachingActivity,
@@ -14,14 +14,56 @@ import { CURATED_ACTIVITIES, DEMO_STUDENTS } from '../data/stage4Data';
  * PART 2 & 3 — PRE-CLASS TEACHING SUPPORT
  * Retrieves deterministic curated activities for a concept.
  * Does NOT depend on students first failing.
+ * Tailors activities dynamically to any new custom curriculum concept if not in curated list.
  */
-export function getTeachingSuggestions(conceptId: string): TeachingActivity[] {
+export function getTeachingSuggestions(conceptId: string, node?: ConceptNode): TeachingActivity[] {
   const matches = CURATED_ACTIVITIES.filter(act => act.conceptIds.includes(conceptId));
   if (matches.length > 0) {
     return matches;
   }
-  // Fallback to general activities
-  return CURATED_ACTIVITIES.slice(0, 3);
+
+  const label = node?.label || conceptId.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  const symbol = node?.symbol || '💡';
+  const explanation = node?.explanation || `Core concept ${label}.`;
+
+  return [
+    {
+      id: `act-${conceptId}-hands-on`,
+      title: `${label} Tactile Exploration`,
+      type: 'Hands-on',
+      conceptIds: [conceptId],
+      duration: 10,
+      description: `Hands-on tactile investigation: Students use classroom materials and physical props to experience ${label.toLowerCase()} in real time.`,
+      inclusiveTip: 'Students may observe, touch, gesture or explain verbally.'
+    },
+    {
+      id: `act-${conceptId}-visual`,
+      title: `${symbol} ${label} Visual Journey`,
+      type: 'Visual',
+      conceptIds: [conceptId],
+      duration: 5,
+      description: `Show high-contrast visual progression and multi-step diagram explaining ${explanation.toLowerCase()}`,
+      inclusiveTip: 'Use dual symbol-word representations and high-contrast color cards.'
+    },
+    {
+      id: `act-${conceptId}-movement`,
+      title: `${label} Kinesthetic Action`,
+      type: 'Movement',
+      conceptIds: [conceptId],
+      duration: 7,
+      description: `Students act out the behavior and transformation of ${label.toLowerCase()} through embodied physical motion.`,
+      inclusiveTip: 'All physical ranges of motion are welcomed; seated hand motions or full movement.'
+    },
+    {
+      id: `act-${conceptId}-communication`,
+      title: `${label} Partner & AAC Communication`,
+      type: 'Communication',
+      conceptIds: [conceptId],
+      duration: 5,
+      description: `Touch ${symbol} ${label} on the Communication Board and describe its role to a partner.`,
+      inclusiveTip: 'Non-speaking students touch symbols with confirm-before-speak safety.'
+    }
+  ];
 }
 
 /**

@@ -24,7 +24,9 @@ export interface AiExplanationResponse {
  */
 export async function generateAiActivities(
   conceptLabel: string,
-  conceptExplanation: string
+  conceptExplanation: string,
+  conceptId?: string,
+  topicTitle?: string
 ): Promise<AiActivityResponse | null> {
   try {
     const controller = new AbortController();
@@ -33,7 +35,7 @@ export async function generateAiActivities(
     const res = await fetch('/api/generate-activities', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ conceptLabel, conceptExplanation }),
+      body: JSON.stringify({ conceptLabel, conceptExplanation, conceptId, topicTitle }),
       signal: controller.signal
     });
 
