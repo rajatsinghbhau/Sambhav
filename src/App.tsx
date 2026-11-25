@@ -4,7 +4,7 @@ import { evaluateEvidence } from './engine/evidenceEngine';
 import { ConceptGraph, GraphEvidenceEvaluation } from './types/conceptGraph';
 import { WelcomeScreen } from './components/screens/WelcomeScreen';
 import { ConceptGraphScreen } from './components/screens/ConceptGraphScreen';
-import { CommunicationBoardScreen } from './components/screens/CommunicationBoardScreen';
+import { ScienceSandboxScreen } from './components/screens/ScienceSandboxScreen';
 import { TeachBackScreen } from './components/screens/TeachBackScreen';
 import { EvidenceDashboardScreen } from './components/screens/EvidenceDashboardScreen';
 import { TeacherDashboard } from './components/TeacherDashboard';
@@ -305,11 +305,11 @@ export function App() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto scrollbar-none py-2">
               <div className="flex items-center gap-2 min-w-max">
                 {[
-                  { id: 'home', label: '1. Welcome', emoji: '🌟' },
-                  { id: 'graph', label: '2. Lesson Map', emoji: '🗺️' },
-                  { id: 'communication', label: '3. Talk & Share', emoji: '💬' },
-                  { id: 'teach_back', label: '4. Tell the Story', emoji: '🧩' },
-                  { id: 'evidence', label: '5. What I Learned', emoji: '📊' },
+                  { id: 'home', label: language === 'KN' ? '1. ಮುಖಪುಟ' : '1. Welcome', emoji: '🌟' },
+                  { id: 'graph', label: language === 'KN' ? '2. ಪಾಠದ ನಕ್ಷೆ' : '2. Lesson Map', emoji: '🗺️' },
+                  { id: 'communication', label: language === 'KN' ? '3. ವಿಜ್ಞಾನ ಲ್ಯಾಬ್ (Sandbox)' : '3. Science Sandbox', emoji: '🧪' },
+                  { id: 'teach_back', label: language === 'KN' ? '4. ಕಥೆ ಹೇಳಿ' : '4. Tell the Story', emoji: '🧩' },
+                  { id: 'evidence', label: language === 'KN' ? '5. ಕಲಿಕೆಯ ಫಲಿತಾಂಶ' : '5. What I Learned', emoji: '📊' },
                 ].map((tab) => {
                   const isActive = currentTab === tab.id;
                   return (
@@ -444,7 +444,7 @@ export function App() {
                       : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
                   }`}
                 >
-                  <span>🗣️ Talk & Share</span>
+                  <span>{language === 'KN' ? '🧪 ವಿಜ್ಞಾನ ಲ್ಯಾಬ್' : '🧪 Science Sandbox'}</span>
                 </button>
 
                 <button
@@ -479,9 +479,15 @@ export function App() {
             {/* STUDENT SCREENS */}
             {currentTab === 'home' && (
               <WelcomeScreen
+                graph={graph}
                 language={language}
                 onStartLearning={handleStartLearning}
                 onWatchDemo={handleWatchDemo}
+                onNavigateToTab={(tab) => {
+                  sounds.playPop();
+                  setCurrentTab(tab);
+                }}
+                onOpenRevisionLibrary={() => setIsRevisionLibraryOpen(true)}
               />
             )}
 
@@ -501,9 +507,17 @@ export function App() {
             )}
 
             {currentTab === 'communication' && (
-              <CommunicationBoardScreen
+              <ScienceSandboxScreen
                 graph={graph}
                 language={language}
+                onNext={() => {
+                  sounds.playPop();
+                  setCurrentTab('teach_back');
+                }}
+                onBack={() => {
+                  sounds.playPop();
+                  setCurrentTab('graph');
+                }}
                 onOpenAskDoubt={() => setIsAskDoubtOpen(true)}
                 onOpenExplainSimply={() => setIsExplainSimplyOpen(true)}
               />

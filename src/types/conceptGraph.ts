@@ -15,6 +15,7 @@ export interface ConceptEdge {
 export interface ConceptGraph {
   id: string;
   title: string;
+  titleKn?: string;
   subtitle: string;
   nodes: ConceptNode[];
   edges: ConceptEdge[];

@@ -2,7 +2,7 @@
 import { defineConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { handleGenerateLessonGraph } from './server/generateLessonGraph';
-import { handleGenerateActivities, handleGenerateExplanation, handleGenerateExamCheckpoint } from './server/aiAssistant';
+import { handleGenerateActivities, handleGenerateExplanation, handleGenerateExamCheckpoint, handleGenerateSandboxSimulation } from './server/aiAssistant';
 import fs from 'fs';
 import path from 'path';
 
@@ -24,18 +24,21 @@ function loadServerEnv(): Record<string, string> {
 // Serverless API middleware for Vite dev and preview servers
 function serverlessApiPlugin(): Plugin {
   const serverEnv = loadServerEnv();
-  // Support either SERVER_GEMINI_API_KEY or GEMINI_API_KEY on the server
-  const apiKey = serverEnv.SERVER_GEMINI_API_KEY || serverEnv.GEMINI_API_KEY || process.env.SERVER_GEMINI_API_KEY || process.env.GEMINI_API_KEY || '';
+  // Support Gemini API and Groq API
+  const geminiApiKey = serverEnv.SERVER_GEMINI_API_KEY || serverEnv.GEMINI_API_KEY || process.env.SERVER_GEMINI_API_KEY || process.env.GEMINI_API_KEY || '';
+  const groqApiKey = serverEnv.GROQ_API_KEY || serverEnv.SERVER_GROQ_API_KEY || process.env.GROQ_API_KEY || process.env.SERVER_GROQ_API_KEY || '';
 
   const handleRoutes = (req: any, res: any, next: any) => {
     if (req.url === '/api/generate-lesson-graph') {
-      handleGenerateLessonGraph(req, res, apiKey);
+      handleGenerateLessonGraph(req, res, geminiApiKey);
     } else if (req.url === '/api/generate-activities') {
-      handleGenerateActivities(req, res, apiKey);
+      handleGenerateActivities(req, res, geminiApiKey);
     } else if (req.url === '/api/generate-simple-explanation') {
-      handleGenerateExplanation(req, res, apiKey);
+      handleGenerateExplanation(req, res, geminiApiKey);
     } else if (req.url === '/api/generate-exam-checkpoint') {
-      handleGenerateExamCheckpoint(req, res, apiKey);
+      handleGenerateExamCheckpoint(req, res, geminiApiKey);
+    } else if (req.url === '/api/generate-sandbox-simulation') {
+      handleGenerateSandboxSimulation(req, res, { geminiApiKey, groqApiKey });
     } else {
       next();
     }

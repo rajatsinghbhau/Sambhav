@@ -57,7 +57,7 @@ export const CommunicationBoard: React.FC<CommunicationBoardProps> = ({
             Today's Communication Board
           </h2>
           <p className="text-slate-600 font-medium mt-0.5 text-base">
-            Water Cycle
+            {graph.title || 'Water Cycle'}
           </p>
         </div>
         {lastSpoken && (

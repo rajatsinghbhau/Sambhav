@@ -62,12 +62,14 @@ export const ConceptGraphScreen: React.FC<ConceptGraphScreenProps> = ({
 
       <div className="text-center">
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          {language === 'KN' ? 'ಜಲಚಕ್ರ (The Water Cycle)' : 'The Water Cycle Map'}
+          {language === 'KN'
+            ? (graph.titleKn ? `${graph.titleKn} (${graph.title})` : graph.title)
+            : `${graph.title} Map`}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-0.5">
-          {language === 'KN'
-            ? 'ಪ್ರಕೃತಿಯಲ್ಲಿ ನೀರು ಹೇಗೆ ಚಲಿಸುತ್ತದೆ ಎಂಬುದನ್ನು ತೋರಿಸುವ ಚಿತ್ರಗಳು'
-            : 'Step-by-step pictures showing how water moves in nature'}
+          {graph.subtitle || (language === 'KN'
+            ? 'ಪ್ರಕೃತಿಯಲ್ಲಿ ಈ ಪರಿಕಲ್ಪನೆ ಹೇಗೆ ಚಲಿಸುತ್ತದೆ ಎಂಬುದನ್ನು ತೋರಿಸುವ ಚಿತ್ರಗಳು'
+            : 'Step-by-step pictures showing how concepts connect')}
         </p>
       </div>
 

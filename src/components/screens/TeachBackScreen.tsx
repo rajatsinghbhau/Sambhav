@@ -61,7 +61,9 @@ export const TeachBackScreen: React.FC<TeachBackScreenProps> = ({
       {/* Title */}
       <div className="text-center">
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          {language === 'KN' ? 'ನೀರಿನ ಕಥೆಯನ್ನು ಹೇಳಿ (Tell the Story)' : 'Tell the Story: The Water Cycle'}
+          {language === 'KN'
+            ? `${graph.titleKn || graph.title} ಕಥೆಯನ್ನು ಹೇಳಿ (Tell the Story)`
+            : `Tell the Story: ${graph.title}`}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-0.5">
           {language === 'KN'

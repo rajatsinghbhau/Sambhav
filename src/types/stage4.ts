@@ -133,9 +133,18 @@ export interface LearnedTopic {
   lastRevisedAt?: string;
 }
 
+export type RevisionQuestionType =
+  | 'visual_symbol'
+  | 'real_life'
+  | 'cause_effect'
+  | 'sensory_observation'
+  | 'curriculum_sequence'
+  | 'concept_check'
+  | string;
+
 export interface RevisionCheckpointQuestion {
   id: string;
-  type: 'visual_symbol' | 'real_life' | 'cause_effect';
+  type: RevisionQuestionType;
   prompt: string;
   options: string[];
   correctIndex: number;

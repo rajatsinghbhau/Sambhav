@@ -10,6 +10,7 @@ import { ConceptGraph, DistractorNode } from '../types/conceptGraph';
 export const WATER_CYCLE_GRAPH: ConceptGraph = {
   id: 'water-cycle',
   title: 'Water Cycle',
+  titleKn: 'ಜಲಚಕ್ರ',
   subtitle: "Today's Science Lesson",
   nodes: [
     {

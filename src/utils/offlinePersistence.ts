@@ -291,7 +291,12 @@ export const offlineStorage = {
         titleKn: 'ಜಲಚಕ್ರ',
         subtitle: 'Sun, heat, evaporation, condensation, and rain',
         symbol: '💧',
-        graph: FALLBACK_GRAPH,
+        graph: {
+          ...FALLBACK_GRAPH,
+          title: 'The Water Cycle',
+          titleKn: 'ಜಲಚಕ್ರ',
+          subtitle: 'Sun, heat, evaporation, condensation, and rain'
+        },
         learnedDate: 'Today',
         status: 'revision_due',
         revisionsCompleted: 1,
@@ -306,6 +311,7 @@ export const offlineStorage = {
         graph: {
           id: 'plant-growth',
           title: 'How Plants Grow',
+          titleKn: 'ಸಸ್ಯಗಳ ಬೆಳವಣಿಗೆ',
           subtitle: 'Plant Biology Lesson',
           nodes: [
             { id: 'seed', label: 'Seed', kannadaLabel: 'ಬೀಜ', symbol: '🌰', explanation: 'A seed rests in fertile soil waiting for water and warmth.' },
@@ -337,6 +343,7 @@ export const offlineStorage = {
         graph: {
           id: 'sun-earth',
           title: 'Sun, Earth & Seasons',
+          titleKn: 'ಸೂರ್ಯ ಮತ್ತು ಭೂಮಿ',
           subtitle: 'Earth & Space Science',
           nodes: [
             { id: 'sun', label: 'Sun', kannadaLabel: 'ಸೂರ್ಯ', symbol: '☀️', explanation: 'The Sun is a glowing star at the center of our solar system.' },

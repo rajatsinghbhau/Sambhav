@@ -71,7 +71,7 @@ export const TeachBack: React.FC<TeachBackProps> = ({
             Teach-Back
           </h2>
           <p className="text-slate-600 font-medium text-base mt-0.5">
-            Build the Water Cycle
+            Build: {graph.title || 'The Water Cycle'}
           </p>
           <p className="text-xs text-slate-500 mt-1">
             Tap cards from the concept bank to add, reorder, or remove. Not a multiple-choice quiz.
