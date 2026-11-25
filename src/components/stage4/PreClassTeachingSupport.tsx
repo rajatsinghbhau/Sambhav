@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { ConceptGraph, ConceptNode } from '../../types/conceptGraph';
+import { ConceptGraph } from '../../types/conceptGraph';
 import { TeachingActivity } from '../../types/stage4';
 import { getTeachingSuggestions } from '../../engine/stage4Engine';
-import { Sparkles, Check, Edit2, RefreshCw, Lightbulb, Clock, Info } from 'lucide-react';
+import { Sparkles, Check, Edit2, Lightbulb, Clock, Info } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects';
 
 interface PreClassTeachingSupportProps {
@@ -36,7 +36,7 @@ export const PreClassTeachingSupport: React.FC<PreClassTeachingSupportProps> = (
     setEditedDescription(activity.description);
   };
 
-  const handleSaveEdit = (activityId: string) => {
+  const handleSaveEdit = (_activityId: string) => {
     sounds.playSuccessChime();
     setEditingActivityId(null);
   };

@@ -5,38 +5,45 @@ import { ConceptGraph, GraphEvidenceEvaluation } from './types/conceptGraph';
 import { WelcomeScreen } from './components/screens/WelcomeScreen';
 import { ConceptGraphScreen } from './components/screens/ConceptGraphScreen';
 import { CommunicationBoardScreen } from './components/screens/CommunicationBoardScreen';
-import { ConfirmBeforeSpeakScreen } from './components/screens/ConfirmBeforeSpeakScreen';
 import { TeachBackScreen } from './components/screens/TeachBackScreen';
 import { EvidenceDashboardScreen } from './components/screens/EvidenceDashboardScreen';
+import { TeacherDashboard } from './components/TeacherDashboard';
 import { PrepareLessonModal } from './components/PrepareLessonModal';
 import { LimitationsPanel } from './components/LimitationsPanel';
+import { DemoLoginScreen } from './components/DemoLoginScreen';
+import { SimplifiedExplanationModal } from './components/stage4/SimplifiedExplanationModal';
+import { StudentAskDoubtModal } from './components/stage4/StudentAskDoubtModal';
 import { offlineStorage, registerServiceWorker } from './utils/offlinePersistence';
-import { UserCheck, PlusCircle, Star } from 'lucide-react';
+import { PlusCircle, LogOut } from 'lucide-react';
 import { sounds } from './utils/soundEffects';
 
-export type ScreenTab =
+export type UserRole = 'student' | 'teacher' | null;
+
+export type StudentTab =
   | 'home'
   | 'graph'
   | 'communication'
-  | 'confirm_speak'
   | 'teach_back'
   | 'evidence';
 
 export function App() {
+  const [userRole, setUserRole] = useState<UserRole>(() => {
+    return offlineStorage.loadCurrentRole();
+  });
+
   const [graph, setGraph] = useState<ConceptGraph>(WATER_CYCLE_GRAPH);
-  const [currentTab, setCurrentTab] = useState<ScreenTab>('home');
+  const [currentTab, setCurrentTab] = useState<StudentTab>('home');
   const [language, setLanguage] = useState<'EN' | 'KN'>('EN');
   const [childChain, setChildChain] = useState<string[]>([]);
-  const [activePhrase, setActivePhrase] = useState<string>('The water vapour rises and cools.');
-  const [speechAvailable, setSpeechAvailable] = useState<boolean>(true);
 
   const [beforeEvidence, setBeforeEvidence] = useState<GraphEvidenceEvaluation | null>(null);
   const [afterEvidence, setAfterEvidence] = useState<GraphEvidenceEvaluation | null>(null);
 
-  const [isTeacherMode, setIsTeacherMode] = useState<boolean>(false);
   const [isPrepareLessonOpen, setIsPrepareLessonOpen] = useState<boolean>(false);
+  const [isExplainSimplyOpen, setIsExplainSimplyOpen] = useState<boolean>(false);
+  const [isAskDoubtOpen, setIsAskDoubtOpen] = useState<boolean>(false);
 
-  // SECTION 1: Offline Rehydration ("Generate Online. Run Offline.")
+  // Offline Rehydration ("Generate Online. Run Offline.")
   useEffect(() => {
     // 1. Rehydrate language preference
     const savedLang = offlineStorage.loadLanguage();
@@ -44,13 +51,19 @@ export function App() {
       setLanguage(savedLang);
     }
 
-    // 2. Rehydrate cached approved graph
+    // 2. Rehydrate role
+    const savedRole = offlineStorage.loadCurrentRole();
+    if (savedRole) {
+      setUserRole(savedRole);
+    }
+
+    // 3. Rehydrate cached approved graph
     const cachedGraph = offlineStorage.loadApprovedGraph();
     if (cachedGraph && cachedGraph.nodes && cachedGraph.nodes.length >= 5) {
       setGraph(cachedGraph);
     }
 
-    // 3. Rehydrate cached evidence & chain
+    // 4. Rehydrate cached evidence & chain
     const cachedState = offlineStorage.loadEvidenceState();
     if (cachedState.childChain && cachedState.childChain.length > 0) {
       setChildChain(cachedState.childChain);
@@ -62,9 +75,24 @@ export function App() {
       setAfterEvidence(cachedState.afterEvidence);
     }
 
-    // 4. Non-blocking Service Worker registration (does not block browser app if offline or unsupported)
+    // 5. Non-blocking Service Worker registration
     registerServiceWorker();
   }, []);
+
+  const handleSelectRole = (role: 'student' | 'teacher') => {
+    sounds.playSuccessChime();
+    setUserRole(role);
+    offlineStorage.saveCurrentRole(role);
+    if (role === 'student') {
+      setCurrentTab('home');
+    }
+  };
+
+  const handleLogout = () => {
+    sounds.playPop();
+    setUserRole(null);
+    offlineStorage.saveCurrentRole(null);
+  };
 
   const handleLanguageToggle = (lang: 'EN' | 'KN') => {
     sounds.playPop();
@@ -77,54 +105,22 @@ export function App() {
     setCurrentTab('graph');
   };
 
-  // SECTION 7 & 9: Real Deterministic One-Click Demo Mode
+  // Real Deterministic One-Click Demo Mode (Section 7 & 9)
   const handleWatchDemo = () => {
     sounds.playSuccessChime();
-    // Scripted Attempt 1: Condensation early (weak concept)
     const attempt1Chain = ['condensation', 'sun', 'heat', 'water', 'evaporation', 'vapour'];
     setChildChain(attempt1Chain);
-    // Real deterministic calculation
     const ev1 = evaluateEvidence(graph, attempt1Chain);
     setBeforeEvidence(ev1);
 
-    // Scripted Attempt 2: Correct sequence after reinforcement
     const attempt2Chain = ['sun', 'heat', 'water', 'evaporation', 'vapour', 'condensation'];
-    // Real deterministic calculation
     const ev2 = evaluateEvidence(graph, attempt2Chain);
     setAfterEvidence(ev2);
 
-    // Cache offline
     offlineStorage.saveApprovedGraph(graph);
     offlineStorage.saveEvidenceState(attempt2Chain, ev1, ev2);
 
     setCurrentTab('evidence');
-  };
-
-  const handleConfirmSpeakDirect = () => {
-    sounds.playSuccessChime();
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis) {
-      try {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(activePhrase);
-        utterance.rate = 0.9;
-        if (language === 'KN') {
-          utterance.lang = 'kn-IN';
-        }
-        utterance.onerror = () => {
-          // Gracefully continue without crashing
-          setSpeechAvailable(false);
-        };
-        window.speechSynthesis.speak(utterance);
-        setSpeechAvailable(true);
-      } catch {
-        setSpeechAvailable(false);
-      }
-    } else {
-      setSpeechAvailable(false);
-    }
-    setTimeout(() => {
-      setCurrentTab('communication');
-    }, 1200);
   };
 
   const handleSeedAttempt1 = () => {
@@ -184,8 +180,12 @@ export function App() {
                 <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
                   SAMBHAV 2.0
                 </h1>
-                <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  Stage 3B Hardened
+                <span className={`hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                  userRole === 'teacher'
+                    ? 'bg-amber-50 text-amber-800 border-amber-300'
+                    : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                }`}>
+                  {userRole === 'teacher' ? 'Teacher Edition' : 'Student Edition'}
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 font-semibold tracking-wide">
@@ -194,39 +194,40 @@ export function App() {
             </div>
           </div>
 
-          {/* Child Profile Status Badge (Fictional student Ananya) */}
-          <div className="hidden lg:flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-200/70">
-            <div className="flex items-center gap-2.5">
-              <span className="text-2xl" aria-hidden="true">👧</span>
-              <div>
-                <div className="text-xs font-black text-slate-900">Student: Ananya</div>
-                <div className="flex items-center gap-0.5 text-amber-500 text-[10px]">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <span className="text-indigo-600 font-extrabold ml-1.5">Water Cycle Unit</span>
+          {/* Active User Persona Badge */}
+          {userRole && (
+            <div className="hidden lg:flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-200/70">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl" aria-hidden="true">
+                  {userRole === 'teacher' ? '🧑‍🏫' : '👧'}
+                </span>
+                <div>
+                  <div className="text-xs font-black text-slate-900">
+                    {userRole === 'teacher' ? 'Teacher: Educator' : 'Student: Ananya'}
+                  </div>
+                  <div className="text-[11px] text-indigo-600 font-extrabold">
+                    {userRole === 'teacher' ? 'Classroom Hub' : 'Water Cycle Lesson'}
+                  </div>
                 </div>
               </div>
+              <div className="h-6 w-px bg-slate-200"></div>
+              <div className="text-left">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Trust Principle</span>
+                <span className="text-xs font-bold text-slate-700">AI suggests. Teacher approves. Child confirms.</span>
+              </div>
             </div>
-            <div className="h-6 w-px bg-slate-200"></div>
-            <div className="text-left">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Trust Principle</span>
-              <span className="text-xs font-bold text-slate-700">AI suggests. Teacher approves. Child confirms.</span>
-            </div>
-          </div>
+          )}
 
-          {/* Controls: Language Toggle (EN | ಕನ್ನಡ) & Teacher Actions */}
+          {/* Controls: Role Switcher & Language Toggle */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* SECTION 2: EN | ಕನ್ನಡ Language Toggle */}
+            {/* Language Toggle */}
             <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200/90" role="group" aria-label="Language selection">
               <button
                 type="button"
                 onClick={() => handleLanguageToggle('EN')}
                 aria-label="Switch to English"
                 aria-pressed={language === 'EN'}
-                className={`min-h-[48px] px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                className={`min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                   language === 'EN'
                     ? 'bg-white text-indigo-700 shadow-sm border border-slate-200/60'
                     : 'text-slate-600 hover:text-slate-900'
@@ -239,7 +240,7 @@ export function App() {
                 onClick={() => handleLanguageToggle('KN')}
                 aria-label="Switch to Kannada"
                 aria-pressed={language === 'KN'}
-                className={`min-h-[48px] px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                className={`min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                   language === 'KN'
                     ? 'bg-indigo-600 text-white shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
@@ -249,145 +250,243 @@ export function App() {
               </button>
             </div>
 
-            <button
-              onClick={() => setIsPrepareLessonOpen(true)}
-              type="button"
-              aria-label="Prepare Today's Lesson with AI Concept Graph"
-              className="min-h-[48px] px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/80 flex items-center gap-2 transition-all cursor-pointer shadow-2xs active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-            >
-              <PlusCircle className="w-4 h-4 text-indigo-600 shrink-0" />
-              <span className="hidden sm:inline">Prepare Today's Lesson</span>
-              <span className="sm:hidden">Prepare</span>
-            </button>
+            {/* Teacher Only: Prepare Lesson AI Ingestion Button */}
+            {userRole === 'teacher' && (
+              <button
+                onClick={() => setIsPrepareLessonOpen(true)}
+                type="button"
+                aria-label="Prepare Today's Lesson with AI Concept Graph"
+                className="min-h-[44px] px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-2 transition-all cursor-pointer shadow-2xs active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+              >
+                <PlusCircle className="w-4 h-4 text-amber-700 shrink-0" />
+                <span className="hidden sm:inline">Prepare Lesson</span>
+              </button>
+            )}
 
-            <button
-              onClick={() => setIsTeacherMode(!isTeacherMode)}
-              type="button"
-              aria-label="Toggle Teacher Mode"
-              aria-pressed={isTeacherMode}
-              className={`min-h-[48px] px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-2 shadow-2xs active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                isTeacherMode
-                  ? 'bg-amber-400 text-amber-950 border-amber-300 font-black'
-                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <UserCheck className="w-4 h-4 shrink-0" />
-              <span className="hidden sm:inline">{isTeacherMode ? 'Teacher Mode: ON' : 'Teacher Mode'}</span>
-            </button>
+            {/* Logout to Demo Login Screen */}
+            {userRole && (
+              <button
+                onClick={handleLogout}
+                type="button"
+                aria-label="Log out of session"
+                className="min-h-[44px] px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 flex items-center gap-1.5 cursor-pointer transition-colors text-xs font-bold"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Log out</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* NAVIGATION TABS (min 48px touch targets, accessible focus) */}
-        <div className="w-full bg-slate-100/70 border-t border-slate-200/80">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto scrollbar-none py-2">
-            <div className="flex items-center gap-2 min-w-max">
-              {[
-                { id: 'home', label: '1. Welcome & Flow', emoji: '🌟' },
-                { id: 'graph', label: '2. Concept Graph', emoji: '🗺️' },
-                { id: 'communication', label: '3. Communication Board', emoji: '💬' },
-                { id: 'confirm_speak', label: '4. Confirm-Before-Speak', emoji: '🔊' },
-                { id: 'teach_back', label: '5. Teach-Back Chain', emoji: '🧩' },
-                { id: 'evidence', label: '6. Evidence & Recap', emoji: '📊' },
-              ].map((tab) => {
-                const isActive = currentTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
-                      sounds.playPop();
-                      setCurrentTab(tab.id as ScreenTab);
-                    }}
-                    type="button"
-                    aria-label={tab.label}
-                    aria-selected={isActive}
-                    className={`min-h-[48px] px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                      isActive
-                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-2 ring-indigo-200'
-                        : 'bg-white border border-slate-200/80 text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    <span>{tab.emoji}</span>
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
+        {/* STUDENT ONLY: Navigation Tabs */}
+        {userRole === 'student' && (
+          <div className="w-full bg-slate-100/70 border-t border-slate-200/80">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto scrollbar-none py-2">
+              <div className="flex items-center gap-2 min-w-max">
+                {[
+                  { id: 'home', label: '1. Welcome', emoji: '🌟' },
+                  { id: 'graph', label: '2. Lesson Map', emoji: '🗺️' },
+                  { id: 'communication', label: '3. Talk & Share', emoji: '💬' },
+                  { id: 'teach_back', label: '4. Tell the Story', emoji: '🧩' },
+                  { id: 'evidence', label: '5. What I Learned', emoji: '📊' },
+                ].map((tab) => {
+                  const isActive = currentTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        sounds.playPop();
+                        setCurrentTab(tab.id as StudentTab);
+                      }}
+                      type="button"
+                      aria-label={tab.label}
+                      aria-selected={isActive}
+                      className={`min-h-[48px] px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                        isActive
+                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-2 ring-indigo-200'
+                          : 'bg-white border border-slate-200/80 text-slate-700 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span>{tab.emoji}</span>
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </header>
 
       {/* MAIN WORKSPACE */}
-      <main className="w-full flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {currentTab === 'home' && (
-          <WelcomeScreen
+      <main className="w-full flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* CASE 0: ROLE NOT SELECTED -> SHOW DEMO LOGIN PORTAL */}
+        {!userRole && (
+          <DemoLoginScreen
+            onSelectRole={handleSelectRole}
             language={language}
-            onStartLearning={handleStartLearning}
-            onWatchDemo={handleWatchDemo}
           />
         )}
 
-        {currentTab === 'graph' && (
-          <ConceptGraphScreen
-            graph={graph}
-            language={language}
-            onNext={() => {
-              sounds.playPop();
-              setCurrentTab('communication');
-            }}
-            onBack={() => {
-              sounds.playPop();
-              setCurrentTab('home');
-            }}
-          />
+        {/* CASE 1: TEACHER ROLE ACTIVE -> EXCLUSIVE TEACHER DASHBOARD */}
+        {userRole === 'teacher' && (
+          <div className="space-y-6">
+            <TeacherDashboard
+              graph={graph}
+              beforeEvidence={beforeEvidence}
+              afterEvidence={afterEvidence}
+            />
+          </div>
         )}
 
-        {currentTab === 'communication' && (
-          <CommunicationBoardScreen
-            graph={graph}
-            language={language}
-            onPhraseClick={(phrase) => {
-              setActivePhrase(phrase);
-            }}
-          />
+        {/* CASE 2: STUDENT ROLE ACTIVE -> EXCLUSIVE STUDENT EXPERIENCE */}
+        {userRole === 'student' && (
+          <>
+            {/* PART 15: Student Quick Action Hub */}
+            <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl p-1.5 bg-indigo-50 rounded-xl">💧</span>
+                <div>
+                  <span className="text-[10px] font-black uppercase text-indigo-700 tracking-wider block">
+                    Today's Lesson
+                  </span>
+                  <h3 className="text-sm sm:text-base font-black text-slate-900">
+                    The Water Cycle
+                  </h3>
+                </div>
+              </div>
+
+              {/* Quick Actions: 📖 Learn, 🔎 Explain Simply, 💬 Ask a Doubt, 🗣️ Communication, 🧩 Teach-Back */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => {
+                    sounds.playPop();
+                    setCurrentTab('graph');
+                  }}
+                  type="button"
+                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    currentTab === 'graph'
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
+                  }`}
+                >
+                  <span>📖 Learn</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    sounds.playPop();
+                    setIsExplainSimplyOpen(true);
+                  }}
+                  type="button"
+                  className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-xs font-black text-sky-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                >
+                  <span>🔎 Explain Simply</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    sounds.playPop();
+                    setIsAskDoubtOpen(true);
+                  }}
+                  type="button"
+                  className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-xs font-black text-indigo-900 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                >
+                  <span>💬 Ask a Doubt</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    sounds.playPop();
+                    setCurrentTab('communication');
+                  }}
+                  type="button"
+                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    currentTab === 'communication'
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
+                  }`}
+                >
+                  <span>🗣️ Talk & Share</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    sounds.playPop();
+                    setCurrentTab('teach_back');
+                  }}
+                  type="button"
+                  className={`min-h-[44px] px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    currentTab === 'teach_back'
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
+                  }`}
+                >
+                  <span>🧩 Tell the Story</span>
+                </button>
+              </div>
+            </div>
+
+            {/* STUDENT SCREENS */}
+            {currentTab === 'home' && (
+              <WelcomeScreen
+                language={language}
+                onStartLearning={handleStartLearning}
+                onWatchDemo={handleWatchDemo}
+              />
+            )}
+
+            {currentTab === 'graph' && (
+              <ConceptGraphScreen
+                graph={graph}
+                language={language}
+                onNext={() => {
+                  sounds.playPop();
+                  setCurrentTab('communication');
+                }}
+                onBack={() => {
+                  sounds.playPop();
+                  setCurrentTab('home');
+                }}
+              />
+            )}
+
+            {currentTab === 'communication' && (
+              <CommunicationBoardScreen
+                graph={graph}
+                language={language}
+                onOpenAskDoubt={() => setIsAskDoubtOpen(true)}
+                onOpenExplainSimply={() => setIsExplainSimplyOpen(true)}
+              />
+            )}
+
+            {currentTab === 'teach_back' && (
+              <TeachBackScreen
+                graph={graph}
+                language={language}
+                chain={childChain}
+                onChangeChain={setChildChain}
+                onCheckChain={handleCheckChain}
+                onClear={() => setChildChain([])}
+                onSeedAttempt1={handleSeedAttempt1}
+                onSeedAttempt2={handleSeedAttempt2}
+              />
+            )}
+
+            {currentTab === 'evidence' && (
+              <EvidenceDashboardScreen
+                beforeEvidence={beforeEvidence}
+                afterEvidence={afterEvidence}
+                language={language}
+                onRetry={() => {
+                  handleSeedAttempt2();
+                }}
+              />
+            )}
+          </>
         )}
 
-        {currentTab === 'confirm_speak' && (
-          <ConfirmBeforeSpeakScreen
-            phrase={activePhrase}
-            onConfirm={handleConfirmSpeakDirect}
-            onChange={() => {
-              sounds.playWhoosh();
-              setCurrentTab('communication');
-            }}
-            speechAvailable={speechAvailable}
-          />
-        )}
-
-        {currentTab === 'teach_back' && (
-          <TeachBackScreen
-            graph={graph}
-            language={language}
-            chain={childChain}
-            onChangeChain={setChildChain}
-            onCheckChain={handleCheckChain}
-            onClear={() => setChildChain([])}
-            onSeedAttempt1={handleSeedAttempt1}
-            onSeedAttempt2={handleSeedAttempt2}
-          />
-        )}
-
-        {currentTab === 'evidence' && (
-          <EvidenceDashboardScreen
-            beforeEvidence={beforeEvidence}
-            afterEvidence={afterEvidence}
-            language={language}
-            onRetry={() => {
-              handleSeedAttempt2();
-            }}
-          />
-        )}
-
-        {/* SECTION 5 & 6: Limitations Panel & Un-fabricated Validation ("Support signal, not assessment") */}
+        {/* LIMITATIONS & ETHICAL BOUNDARY PANEL */}
         <div className="pt-4 border-t border-slate-200">
           <LimitationsPanel />
         </div>
@@ -399,17 +498,34 @@ export function App() {
           <p className="text-slate-800 font-bold">
             SAMBHAV 2.0 • Concept-Graph Inclusive Classroom
           </p>
-          <p className="text-emerald-700 font-bold">
-            Stage 3B: Hardened Offline AAC • Dual Language (EN | ಕನ್ನಡ) • Deterministic Evidence Loop
+          <p className="text-indigo-700 font-bold">
+            Role-Separated Architecture • Student AAC & Teach-Back • Teacher Intelligence & Revision
           </p>
         </div>
       </footer>
 
-      {/* PREPARE TODAY'S LESSON MODAL */}
+      {/* PREPARE TODAY'S LESSON MODAL (TEACHER) */}
       <PrepareLessonModal
         isOpen={isPrepareLessonOpen}
         onClose={() => setIsPrepareLessonOpen(false)}
         onApproveGraph={handleApproveNewGraph}
+      />
+
+      {/* SIMPLIFIED EXPLANATION MODAL (STUDENT) */}
+      <SimplifiedExplanationModal
+        isOpen={isExplainSimplyOpen}
+        onClose={() => setIsExplainSimplyOpen(false)}
+        graph={graph}
+        initialConceptId="condensation"
+        onOpenAskDoubt={() => setIsAskDoubtOpen(true)}
+      />
+
+      {/* STUDENT ASK A DOUBT MODAL (STUDENT) */}
+      <StudentAskDoubtModal
+        isOpen={isAskDoubtOpen}
+        onClose={() => setIsAskDoubtOpen(false)}
+        graph={graph}
+        studentName="Ananya"
       />
     </div>
   );

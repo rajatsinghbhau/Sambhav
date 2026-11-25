@@ -1,18 +1,26 @@
 import React, { useState } from 'react';
-import { TeachingPlan, TeachingPlanItem } from '../../types/stage4';
+import { TeachingPlan } from '../../types/stage4';
 import { createDefaultTeachingPlan } from '../../engine/stage4Engine';
 import { offlineStorage } from '../../utils/offlinePersistence';
-import { Clock, Check, Edit3, Plus, Trash2, RotateCcw, Calendar, Save, Info } from 'lucide-react';
+import { Clock, Check, Edit3, RotateCcw, Calendar, Save, Info } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects';
 
 interface TeachingPlannerProps {
   onPlanSaved?: (plan: TeachingPlan) => void;
+  planTrigger?: number;
 }
 
-export const TeachingPlanner: React.FC<TeachingPlannerProps> = ({ onPlanSaved }) => {
+export const TeachingPlanner: React.FC<TeachingPlannerProps> = ({ onPlanSaved, planTrigger }) => {
   const [plan, setPlan] = useState<TeachingPlan>(() => {
     return offlineStorage.loadTeachingPlan() || createDefaultTeachingPlan('Water Cycle', 'condensation');
   });
+
+  React.useEffect(() => {
+    const loaded = offlineStorage.loadTeachingPlan();
+    if (loaded) {
+      setPlan(loaded);
+    }
+  }, [planTrigger]);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);

@@ -14,7 +14,7 @@ export const JudgeLandingFlow: React.FC<JudgeLandingFlowProps> = ({
   const steps = [
     { title: 'Lesson', desc: 'Teacher prepares Water Cycle text or curriculum', icon: '📖' },
     { title: 'Concept Graph', desc: 'Canonical linear milestones (Sun → Heat → Water → ...)', icon: '🗺️' },
-    { title: 'Communication', desc: 'Accessible touch AAC board with Confirm-Before-Speak', icon: '💬' },
+    { title: 'Communication', desc: 'Accessible touch-first AAC communication board with audio speech', icon: '💬' },
     { title: 'Teach-Back', desc: 'Child constructs concept sequence (Attempt 1: Condensation early)', icon: '🧩' },
     { title: 'Demonstrated Evidence', desc: 'Deterministic predecessor rule: 🟢 Demonstrated | 🟡 Needs reinforcement', icon: '📊' },
     { title: 'Reinforcement', desc: 'Targeted practice check on weak concept (Condensation)', icon: '🔁' },

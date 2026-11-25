@@ -56,18 +56,18 @@ export const ConceptGraphScreen: React.FC<ConceptGraphScreenProps> = ({
       <div className="flex justify-center">
         <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-emerald-600 text-white font-extrabold text-sm shadow-md shadow-emerald-600/20">
           <CheckCircle2 className="w-5 h-5 fill-white text-emerald-600 shrink-0" />
-          <span>{language === 'KN' ? 'ಶಿಕ್ಷಕರು ಅನುಮೋದಿಸಿದ ಪರಿಕಲ್ಪನಾ ಗ್ರಾಫ್' : 'Teacher Approved Concept Graph'}</span>
+          <span>{language === 'KN' ? 'ಶಿಕ್ಷಕರು ಅನುಮೋದಿಸಿದ ಪಾಠದ ನಕ್ಷೆ' : 'Teacher Approved Lesson Map'}</span>
         </div>
       </div>
 
       <div className="text-center">
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          {language === 'KN' ? 'ಜಲಚಕ್ರ (The Water Cycle)' : 'The Water Cycle'}
+          {language === 'KN' ? 'ಜಲಚಕ್ರ (The Water Cycle)' : 'The Water Cycle Map'}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-0.5">
           {language === 'KN'
-            ? 'AAC ಸಂವಹನವನ್ನು ವಿಜ್ಞಾನದೊಂದಿಗೆ ಸಂಪರ್ಕಿಸುವ ಹಂತ-ಹಂತದ ಮೈಲಿಗಲ್ಲುಗಳು'
-            : 'Step-by-step milestones connecting AAC communication with science'}
+            ? 'ಪ್ರಕೃತಿಯಲ್ಲಿ ನೀರು ಹೇಗೆ ಚಲಿಸುತ್ತದೆ ಎಂಬುದನ್ನು ತೋರಿಸುವ ಚಿತ್ರಗಳು'
+            : 'Step-by-step pictures showing how water moves in nature'}
         </p>
       </div>
 

@@ -97,7 +97,7 @@ export const EvidenceDashboardScreen: React.FC<EvidenceDashboardScreenProps> = (
         <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col justify-between">
           <div>
             <div className="text-center font-black text-slate-900 text-sm sm:text-base mb-4 border-b border-slate-200 pb-2 flex items-center justify-center gap-2">
-              <span>Before (Attempt 1)</span>
+              <span>{language === 'KN' ? 'ಮೊದಲ ಪ್ರಯತ್ನ (First Try)' : 'First Try (Attempt 1)'}</span>
               <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-extrabold">Initial</span>
             </div>
             <div className="space-y-2">
@@ -109,7 +109,7 @@ export const EvidenceDashboardScreen: React.FC<EvidenceDashboardScreenProps> = (
                 ))
               ) : (
                 <p className="text-xs text-slate-400 italic text-center py-8">
-                  No attempt 1 record yet. Click Watch Demo on Home to seed.
+                  {language === 'KN' ? 'ಇನ್ನೂ ಯಾವುದೇ ಪ್ರಯತ್ನ ದಾಖಲಾಗಿಲ್ಲ.' : 'No attempt recorded yet. Build your story in Tell the Story!'}
                 </p>
               )}
             </div>
@@ -120,8 +120,8 @@ export const EvidenceDashboardScreen: React.FC<EvidenceDashboardScreenProps> = (
         <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col justify-between">
           <div>
             <div className="text-center font-black text-slate-900 text-sm sm:text-base mb-4 border-b border-slate-200 pb-2 flex items-center justify-center gap-2">
-              <span>After (Attempt 2)</span>
-              <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-extrabold">Reinforced</span>
+              <span>{language === 'KN' ? 'ಅಭ್ಯಾಸದ ನಂತರ (After Practice)' : 'After Practice (Attempt 2)'}</span>
+              <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-extrabold">Practiced</span>
             </div>
             <div className="space-y-2">
               {afterNodes.length > 0 ? (
@@ -133,7 +133,9 @@ export const EvidenceDashboardScreen: React.FC<EvidenceDashboardScreenProps> = (
               ) : (
                 <div className="text-center py-8">
                   <p className="text-xs text-slate-400 italic mb-3">
-                    Child has practiced reinforcement and is ready for Attempt 2 retry.
+                    {language === 'KN'
+                      ? 'ಮಗು ಬಲವರ್ಧನೆಯನ್ನು ಅಭ್ಯಾಸ ಮಾಡಿದೆ ಮತ್ತು ಮರುಪ್ರಯತ್ನಕ್ಕೆ ಸಿದ್ಧವಾಗಿದೆ.'
+                      : 'You practiced the concept and are ready to try the story again!'}
                   </p>
                   <button
                     onClick={() => {
@@ -141,10 +143,10 @@ export const EvidenceDashboardScreen: React.FC<EvidenceDashboardScreenProps> = (
                       onRetry();
                     }}
                     type="button"
-                    aria-label="Simulate retry with correct order"
+                    aria-label="Practice and retry story"
                     className="min-h-[48px] px-6 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-md shadow-indigo-600/25 cursor-pointer btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                   >
-                    Simulate Retry (Attempt 2)
+                    <span>{language === 'KN' ? 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ (Retry Story)' : 'Try Story Again (Retry)'}</span>
                   </button>
                 </div>
               )}
@@ -159,7 +161,7 @@ export const EvidenceDashboardScreen: React.FC<EvidenceDashboardScreenProps> = (
           <span className="text-2xl animate-float">⭐</span>
           <div>
             <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 block">
-              Teacher Pedagogical Continuation (Deterministic Recap)
+              {language === 'KN' ? 'ಶಿಕ್ಷಕರ ಮುಂದಿನ ಯೋಜನೆ (Teacher Next Step)' : "Teacher's Next Teaching Plan"}
             </span>
             <span className="text-base sm:text-lg font-black text-slate-900">
               {recap.summarySentence}
@@ -167,14 +169,14 @@ export const EvidenceDashboardScreen: React.FC<EvidenceDashboardScreenProps> = (
           </div>
         </div>
         <span className="text-xs font-bold px-3 py-1 bg-white/90 border border-emerald-300 rounded-xl text-emerald-800 shadow-2xs shrink-0">
-          Pedagogical Rule Engine
+          Teacher Guide
         </span>
       </div>
 
-      {/* Learning Loop Process Map matching image #6 */}
+      {/* Learning Loop Process Map */}
       <div className="pt-2 border-t border-slate-100">
         <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-3 text-center">
-          Child Learning Loop
+          {language === 'KN' ? 'ನಾವು ಒಟ್ಟಿಗೆ ಕಲಿಯುವ ವಿಧಾನ (How We Learn Together)' : 'How We Learn Together'}
         </h4>
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs font-bold text-slate-700">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200">

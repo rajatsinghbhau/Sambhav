@@ -14,6 +14,7 @@ const STORAGE_KEYS = {
   REVISION_QUEUE: 'sambhav_revision_queue',
   EXAM_PLAN: 'sambhav_exam_plan',
   STUDENT_ACTIVITIES: 'sambhav_student_activities',
+  CURRENT_ROLE: 'sambhav_current_role',
 };
 
 export interface OfflineCacheState {
@@ -134,6 +135,25 @@ export const offlineStorage = {
       if (lang === 'KN' || lang === 'EN') return lang;
     } catch {}
     return 'EN';
+  },
+
+  // DEMO ROLE PERSISTENCE
+  saveCurrentRole(role: 'student' | 'teacher' | null) {
+    try {
+      if (role === null) {
+        safeRemoveItem(STORAGE_KEYS.CURRENT_ROLE);
+      } else {
+        safeSetItem(STORAGE_KEYS.CURRENT_ROLE, role);
+      }
+    } catch {}
+  },
+
+  loadCurrentRole(): 'student' | 'teacher' | null {
+    try {
+      const role = safeGetItem(STORAGE_KEYS.CURRENT_ROLE);
+      if (role === 'student' || role === 'teacher') return role;
+    } catch {}
+    return null;
   },
 
   // STAGE 4 PERSISTENCE HELPERS

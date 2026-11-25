@@ -1,5 +1,3 @@
-import { ConceptGraph } from './conceptGraph';
-
 export type ActivityType =
   | 'Visual'
   | 'Hands-on'
