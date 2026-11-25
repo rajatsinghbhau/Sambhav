@@ -335,6 +335,7 @@ export function App() {
               graph={graph}
               beforeEvidence={beforeEvidence}
               afterEvidence={afterEvidence}
+              onOpenPrepareLesson={() => setIsPrepareLessonOpen(true)}
             />
           </div>
         )}

@@ -28,6 +28,7 @@ interface TeacherDashboardProps {
   graph: ConceptGraph;
   beforeEvidence: GraphEvidenceEvaluation | null;
   afterEvidence: GraphEvidenceEvaluation | null;
+  onOpenPrepareLesson?: () => void;
 }
 
 export type TeacherDashboardTab = 'prepare' | 'activity' | 'evidence' | 'revision';
@@ -35,7 +36,8 @@ export type TeacherDashboardTab = 'prepare' | 'activity' | 'evidence' | 'revisio
 export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   graph,
   beforeEvidence,
-  afterEvidence
+  afterEvidence,
+  onOpenPrepareLesson
 }) => {
   const recap = generateTeacherRecap(beforeEvidence, afterEvidence);
 
@@ -193,6 +195,36 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       {/* TAB 1: PREPARE */}
       {activeTab === 'prepare' && (
         <div className="space-y-6">
+          {/* AI Concept Graph Ingestion Action Card */}
+          {onOpenPrepareLesson && (
+            <div className="bg-gradient-to-r from-amber-50 via-indigo-50/50 to-sky-50 rounded-3xl border-2 border-indigo-200/90 p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-600 text-white text-[11px] font-black uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                  <span>Google Gemini 2.5 Flash</span>
+                </div>
+                <h4 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                  Prepare Today's Lesson with AI Concept Graph
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-xl">
+                  Paste any science lesson paragraph. AI parses pedagogical milestones into a verified Concept Graph for teacher review and approval.
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  sounds.playPop();
+                  onOpenPrepareLesson();
+                }}
+                type="button"
+                className="min-h-[48px] px-6 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-md shadow-indigo-600/30 btn-tactile shrink-0"
+              >
+                <Sparkles className="w-4 h-4 text-amber-300" />
+                <span>Open AI Lesson Ingestion</span>
+              </button>
+            </div>
+          )}
+
           {planNotification && (
             <div className="p-4 bg-emerald-50 border-2 border-emerald-300 text-emerald-950 font-black text-xs sm:text-sm rounded-2xl animate-in zoom-in-95 flex items-center gap-2.5 shadow-sm">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
